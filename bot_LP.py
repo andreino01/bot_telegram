@@ -194,7 +194,7 @@ def setup_job_queue(application: Application):
     
     # Imposta il fuso orario (es. Europe/Rome per l'Italia)
     timezone = pytz.timezone("Europe/Rome")
-    target_time = timezone.localize(datetime.combine(datetime.now(), time(0, 27)))
+    target_time = timezone.localize(datetime.combine(datetime.now(), time(0, 30)))
     # Converti in UTC
     utc_time = target_time.astimezone(pytz.utc).timetz()
     # Programma il job per le 00:00 ogni giorno

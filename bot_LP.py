@@ -183,7 +183,7 @@ def get_soldi_spesi(chat_id):
 
     # Recupera il valore dalla cella W5
     soldi_spesi = worksheet.cell(5, 23).value  # La cella W5 è nella riga 5, colonna 23
-	soldi_spesi = soldi_spesi.replace("€", "").strip()
+    soldi_spesi = soldi_spesi.replace("€", "").strip()
     return soldi_spesi
 
 

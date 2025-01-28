@@ -167,9 +167,9 @@ async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
 def get_soldi_spesi(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-        637735039: 1,
-		#1832764914: 1,  # Foglio 2
-        5201631829: 2,  # Foglio 3
+        1832764914: 1,  # Foglio 2
+        637735039: 2,
+        #5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 
@@ -183,6 +183,7 @@ def get_soldi_spesi(chat_id):
 
     # Recupera il valore dalla cella W5
     soldi_spesi = worksheet.cell(5, 23).value  # La cella W5 è nella riga 5, colonna 23
+	soldi_spesi = soldi_spesi.replace("€", "").strip()
     return soldi_spesi
 
 

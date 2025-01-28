@@ -136,8 +136,7 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
     if query.data == '/quiz':  # Se è il pulsante per iniziare il quiz
         user_states[chat_id] = 0
         await send_question(context, chat_id, 0)
-
-	elif query.data == '/soldi_spesi':  # Se è il pulsante per vedere i soldi spesi
+    elif query.data == '/soldi_spesi':  # Se è il pulsante per vedere i soldi spesi
         soldi_spesi = get_soldi_spesi(chat_id)
         if soldi_spesi:
             await context.bot.send_message(chat_id=chat_id, text=f"💸 In tutto hai speso: {soldi_spesi}€")

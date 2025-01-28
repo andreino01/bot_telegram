@@ -168,7 +168,7 @@ def setup_job_queue(application: Application):
     
     # Imposta il fuso orario (es. Europe/Rome per l'Italia)
     timezone = pytz.timezone("Europe/Rome")
-    target_time = timezone.localize(datetime.combine(datetime.now(), time(22, 45)))
+    target_time = timezone.localize(datetime.combine(datetime.now(), time(22, 49)))
     # Converti in UTC
     utc_time = target_time.astimezone(pytz.utc).timetz()
     # Programma il job per le 00:00 ogni giorno
@@ -180,8 +180,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("quiz", quiz))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    app.add_handler(CallbackQueryHandler(handle_button_click, pattern='^/quiz$'))
-    app.add_handler(CallbackQueryHandler(handle_show_chart, pattern='^/show_chart$'))
+    app.add_handler(CallbackQueryHandler(handle_button_click))
 		
   
     # Configura il job schedulato

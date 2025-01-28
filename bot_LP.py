@@ -168,9 +168,9 @@ def get_soldi_spesi(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
         1832764914: 1,  # Foglio 2
-        637735039: 2,
-        #5201631829: 2,  # Foglio 3
-        700212414: 3    # Foglio 4
+        637735039: 3,
+        5201631829: 2,  # Foglio 3
+        #700212414: 3    # Foglio 4
     }
 
     # Verifica se l'ID dell'utente è nella mappa

@@ -30,8 +30,8 @@ gc = gspread.authorize(creds)
 sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 
 # Lista degli utenti registrati
-saved_chat_ids2 = [637735039]
-saved_chat_ids = [1832764914, 5201631829, 637735039, 700212414]
+saved_chat_ids = [637735039]
+saved_chat_ids2 = [1832764914, 5201631829, 637735039, 700212414]
 
 # Domande del quiz
 DOMANDE = [
@@ -118,11 +118,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
          # Crea il bottone per visualizzare il grafico
         keyboard = [
             [InlineKeyboardButton("📊 Mostra il grafico", url=chart_url)]
+			[InlineKeyboardButton("💸 Soldi spesi", callback_data='/soldi_spesi')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         # Invia il bottone per visualizzare il grafico
         await update.message.reply_text(
-            text="Clicca il bottone qui sotto per vedere il tuo grafico",
+            text="Clicca i bottoni qui sotto per vedere il tuo grafico oppure quanto hai speso in fumo",
             reply_markup=reply_markup
         )
         del user_states[chat_id]
@@ -135,6 +136,13 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
     if query.data == '/quiz':  # Se è il pulsante per iniziare il quiz
         user_states[chat_id] = 0
         await send_question(context, chat_id, 0)
+
+	elif query.data == '/soldi_spesi':  # Se è il pulsante per vedere i soldi spesi
+        soldi_spesi = get_soldi_spesi(chat_id)
+        if soldi_spesi:
+            await context.bot.send_message(chat_id=chat_id, text=f"💸 In tutto hai speso: {soldi_spesi}€")
+        else:
+            await context.bot.send_message(chat_id=chat_id, text="⚠️ Non ho trovato il tuo totale speso.")
 
 async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
     """
@@ -156,6 +164,29 @@ async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
         except Exception as e:
             print(f"Errore nell'inviare il messaggio al chat_id {chat_id}: {e}")
 
+
+def get_soldi_spesi(chat_id):
+    # Mappa degli ID e i fogli corrispondenti
+    sheet_map = {
+        637735039: 1,
+		#1832764914: 1,  # Foglio 2
+        5201631829: 2,  # Foglio 3
+        700212414: 3    # Foglio 4
+    }
+
+    # Verifica se l'ID dell'utente è nella mappa
+    if chat_id not in sheet_map:
+        return None  # Se l'ID non è trovato, ritorna None
+
+    # Ottieni il numero del foglio in base all'ID
+    sheet_number = sheet_map[chat_id]
+    worksheet = sh.get_worksheet(sheet_number)  # Ottieni il foglio corrispondente
+
+    # Recupera il valore dalla cella W5
+    soldi_spesi = worksheet.cell(5, 23).value  # La cella W5 è nella riga 5, colonna 23
+    return soldi_spesi
+
+
 def setup_job_queue(application: Application):
     """
     Configura il job schedulato per mezzanotte
@@ -164,7 +195,7 @@ def setup_job_queue(application: Application):
     
     # Imposta il fuso orario (es. Europe/Rome per l'Italia)
     timezone = pytz.timezone("Europe/Rome")
-    target_time = timezone.localize(datetime.combine(datetime.now(), time(0, 0)))
+    target_time = timezone.localize(datetime.combine(datetime.now(), time(0, 25)))
     # Converti in UTC
     utc_time = target_time.astimezone(pytz.utc).timetz()
     # Programma il job per le 00:00 ogni giorno

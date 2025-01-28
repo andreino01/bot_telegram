@@ -30,7 +30,8 @@ gc = gspread.authorize(creds)
 sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 
 # Lista degli utenti registrati
-saved_chat_ids = [1832764914, 5201631829, 637735039, 700212414]
+saved_chat_ids = [637735039]
+saved_chat_ids2 = [1832764914, 5201631829, 637735039, 700212414]
 
 # Domande del quiz
 DOMANDE = [
@@ -105,14 +106,39 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await send_question(context, chat_id, current_question + 1)
     else:
         await update.message.reply_text("🎉 Quiz completato! Risposte salvate.")
+         # Crea il bottone per visualizzare il grafico
+        keyboard = [
+            [InlineKeyboardButton("📊 Mostra il grafico", callback_data='/show_chart')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        # Invia il bottone per visualizzare il grafico
+        await update.message.reply_text(
+            text="Clicca sul bottone per vedere il tuo grafico.",
+            reply_markup=reply_markup
+        )
         del user_states[chat_id]
 
 async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    await query.answer()  # Rispondi al clic del pulsante
     chat_id = query.message.chat.id
-    user_states[chat_id] = 0
-    await send_question(context, chat_id, 0)
+
+    if query.data == '/quiz':  # Se è il pulsante per iniziare il quiz
+        user_states[chat_id] = 0
+        await send_question(context, chat_id, 0)
+    
+    elif query.data == '/show_chart' and (chat_id == 1832764914 or chat_id ==637735039): # Se è il pulsante per mostrare il grafico
+        # Link al grafico su Google Sheets
+        chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1293144718&format=image"
+   
+    elif query.data == '/show_chart' and chat_id == 5201631829:  
+        chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=36108840&format=image"
+        await context.bot.send_message(chat_id=chat_id, text=f"📊 Guarda il tuo grafico: {chart_url}")
+      
+    elif query.data == '/show_chart' and chat_id == 700212414:
+        chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=937722899&format=image"
+        await context.bot.send_message(chat_id=chat_id, text=f"📊 Guarda il tuo grafico: {chart_url}")
+      
 
 async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
     """
@@ -142,7 +168,7 @@ def setup_job_queue(application: Application):
     
     # Imposta il fuso orario (es. Europe/Rome per l'Italia)
     timezone = pytz.timezone("Europe/Rome")
-    target_time = timezone.localize(datetime.combine(datetime.now(), time(21, 38)))
+    target_time = timezone.localize(datetime.combine(datetime.now(), time(22, 45)))
     # Converti in UTC
     utc_time = target_time.astimezone(pytz.utc).timetz()
     # Programma il job per le 00:00 ogni giorno
@@ -155,6 +181,9 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("quiz", quiz))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     app.add_handler(CallbackQueryHandler(handle_button_click, pattern='^/quiz$'))
+    app.add_handler(CallbackQueryHandler(handle_show_chart, pattern='^/show_chart$'))
+		
+  
     # Configura il job schedulato
     setup_job_queue(app)
     # Avvia il bot in long polling

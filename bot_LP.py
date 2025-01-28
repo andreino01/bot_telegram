@@ -108,7 +108,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("🎉 Quiz completato! Risposte salvate.")
 
 	 # Determina l'URL del grafico per l'utente
-        if chat_id == 1832764914:
+        if chat_id == 1832764914 or chat_id == 637735039:
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1293144718&format=image"
         elif chat_id == 5201631829:
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=36108840&format=image"
@@ -118,10 +118,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
          # Crea il bottone per visualizzare il grafico
         keyboard = [
             [InlineKeyboardButton("📊 Mostra il grafico", url=chart_url)]
-			[InlineKeyboardButton("💸 Soldi spesi", callback_data='/soldi_spesi')]
+	        [InlineKeyboardButton("💸 Soldi spesi", callback_data='/soldi_spesi')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        # Invia il bottone per visualizzare il grafico
+        # Invia il bottone per visualizzare il grafico o i soldi spesi
         await update.message.reply_text(
             text="Clicca i bottoni qui sotto per vedere il tuo grafico oppure quanto hai speso in fumo",
             reply_markup=reply_markup
@@ -194,7 +194,7 @@ def setup_job_queue(application: Application):
     
     # Imposta il fuso orario (es. Europe/Rome per l'Italia)
     timezone = pytz.timezone("Europe/Rome")
-    target_time = timezone.localize(datetime.combine(datetime.now(), time(0, 30)))
+    target_time = timezone.localize(datetime.combine(datetime.now(), time(0, 0)))
     # Converti in UTC
     utc_time = target_time.astimezone(pytz.utc).timetz()
     # Programma il job per le 00:00 ogni giorno

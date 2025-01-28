@@ -117,8 +117,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
          # Crea il bottone per visualizzare il grafico
         keyboard = [
-            [InlineKeyboardButton("📊 Mostra il grafico", url=chart_url)]
-	        [InlineKeyboardButton("💸 Soldi spesi", callback_data='/soldi_spesi')]
+            [InlineKeyboardButton("📊 Mostra il grafico", url=chart_url)],
+			[InlineKeyboardButton("💸 Soldi spesi", callback_data='/soldi_spesi')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         # Invia il bottone per visualizzare il grafico o i soldi spesi

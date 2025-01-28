@@ -45,7 +45,7 @@ user_states = {}
 
 def save_to_sheet(chat_id, risposta, domanda_num):
     worksheet = sh.get_worksheet(0)
-    timestamp = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+    timestamp = (datetime.now() - timedelta(hours=18)).strftime("%Y-%m-%d")
     worksheet.append_row([str(chat_id), domanda_num, risposta, timestamp])
 
 async def send_question(context: ContextTypes.DEFAULT_TYPE, chat_id, question_num):
@@ -106,14 +106,23 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await send_question(context, chat_id, current_question + 1)
     else:
         await update.message.reply_text("🎉 Quiz completato! Risposte salvate.")
+
+	 # Determina l'URL del grafico per l'utente
+        if chat_id == 1832764914 or chat_id == 637735039:
+            chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1293144718&format=image"
+        elif chat_id == 5201631829:
+            chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=36108840&format=image"
+        elif chat_id == 700212414:
+            chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=937722899&format=image"
+
          # Crea il bottone per visualizzare il grafico
         keyboard = [
-            [InlineKeyboardButton("📊 Mostra il grafico", callback_data='/show_chart')]
+            [InlineKeyboardButton("📊 Mostra il grafico", url=chart_url)]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         # Invia il bottone per visualizzare il grafico
         await update.message.reply_text(
-            text="Clicca sul bottone per vedere il tuo grafico.",
+            text="Clicca il bottone qui sotto per vedere il tuo grafico",
             reply_markup=reply_markup
         )
         del user_states[chat_id]
@@ -126,19 +135,6 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
     if query.data == '/quiz':  # Se è il pulsante per iniziare il quiz
         user_states[chat_id] = 0
         await send_question(context, chat_id, 0)
-    
-    elif query.data == '/show_chart' and (chat_id == 1832764914 or chat_id ==637735039): # Se è il pulsante per mostrare il grafico
-        # Link al grafico su Google Sheets
-        chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1293144718&format=image"
-   
-    elif query.data == '/show_chart' and chat_id == 5201631829:  
-        chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=36108840&format=image"
-        await context.bot.send_message(chat_id=chat_id, text=f"📊 Guarda il tuo grafico: {chart_url}")
-      
-    elif query.data == '/show_chart' and chat_id == 700212414:
-        chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=937722899&format=image"
-        await context.bot.send_message(chat_id=chat_id, text=f"📊 Guarda il tuo grafico: {chart_url}")
-      
 
 async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
     """

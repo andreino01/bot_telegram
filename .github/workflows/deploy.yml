@@ -2,8 +2,8 @@ name: Railway Deploy & Undeploy
 
 on:
   schedule:
-    - cron: "0 19 * * *" # Deploy alle 20:00 (UTC 19 = Italia 20)
-    - cron: "0 2 * * *"  # Undeploy alle 03:00 (UTC 2 = Italia 3)
+    - cron: "19 16 * * *" # Deploy alle 20:00 (UTC 19 = Italia 20)
+    - cron: "25 16 * * *"  # Undeploy alle 03:00 (UTC 2 = Italia 3)
 
 jobs:
   deploy_bot:

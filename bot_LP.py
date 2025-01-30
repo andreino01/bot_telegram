@@ -112,7 +112,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if improvement_status < 0:
                 msg = f"Bravo/a oggi ne hai fumate {abs(improvement_status)} in meno di ieri, continua così! 💪"
             elif improvement_status > 0:
-                msg = f"Oggi ne hai fumate {abs(improvement_status)} in più rispetto a ieri, ma domani è un altro giorno e so che puoi fare di meglio! 🔥"
+                msg = f"Oh no!\n Oggi ne hai fumate {abs(improvement_status)} in più rispetto a ieri, ma domani è un altro giorno e so che puoi fare di meglio! 💪"
             else:
                 msg = "Oggi ne hai fumate quante ieri. ⚖️"
             await update.message.reply_text(msg)
@@ -135,7 +135,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         # Invia il bottone per visualizzare il grafico o i soldi spesi
         await update.message.reply_text(
-            # text="Clicca i bottoni qui sotto per vedere il tuo grafico oppure quanto hai speso in fumo",
+            text="Clicca i bottoni qui sotto per vedere il tuo grafico oppure quanto hai speso in fumo",
             reply_markup=reply_markup
         )
         del user_states[chat_id]

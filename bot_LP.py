@@ -128,6 +128,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=937722899&format=image"
         else:
             await update.message.reply_text("⚠️ Impossibile trovare il grafico dei tounprogressi")
+            return
          # Crea il bottone per visualizzare il grafico
         keyboard = [
             [InlineKeyboardButton("📊 Mostra il grafico", url=chart_url)],

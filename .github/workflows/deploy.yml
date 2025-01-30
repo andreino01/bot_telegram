@@ -2,8 +2,8 @@ name: Railway Deploy & Undeploy
 
 on:
   schedule:
-    - cron: "27 16 * * *" # Deploy alle 20:00 (UTC 19 = Italia 20)
-    - cron: "30 16 * * *"  # Undeploy alle 03:00 (UTC 2 = Italia 3)
+    - cron: "29 16 * * *" # Deploy alle 20:00 (UTC 19 = Italia 20)
+    - cron: "32 16 * * *"  # Undeploy alle 03:00 (UTC 2 = Italia 3)
 
 jobs:
   deploy_bot:
@@ -22,10 +22,10 @@ jobs:
         env:
           RUN_DEPLOY: ${{ github.event.schedule == '25 16 * * *' }}
         if: env.RUN_DEPLOY == 'true'
-        run: railway up --project abcd1234 --service bot_telegram
+        run: railway up --service bot_telegram
 
       - name: Undeploy bot
         env:
           RUN_UNDEPLOY: ${{ github.event.schedule == '30 16 * * *' }}
         if: env.RUN_UNDEPLOY == 'true'
-        run: railway down --project abcd1234 --service bot_telegram
+        run: railway down --service bot_telegram

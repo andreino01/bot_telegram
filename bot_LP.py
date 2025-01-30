@@ -214,7 +214,7 @@ def get_improvement_status(chat_id):
     worksheet = sh.get_worksheet(sheet_map[chat_id])
     
     # Leggi la cella W5 (modifica questo riferimento se cambia posizione nello sheet)
-    status_cell = int(worksheet.cell(5, 23).value)  # X5 = riga 5, colonna 24
+    status_cell = int(worksheet.cell(5, 24).value)  # X5 = riga 5, colonna 24
     return status_cell
 
 def setup_job_queue(application: Application):

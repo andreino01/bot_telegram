@@ -1,0 +1,28 @@
+name: Railway Deploy & Undeploy
+
+on:
+  schedule:
+    - cron: "0 19 * * *" # Deploy alle 20:00 (UTC 19 = Italia 20)
+    - cron: "0 2 * * *"  # Undeploy alle 03:00 (UTC 2 = Italia 3)
+
+jobs:
+  deploy_bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Railway CLI
+        run: curl -fsSL https://railway.app/install.sh | sh
+
+      - name: Deploy bot
+        if: github.event.schedule == '0 19 * * *'
+        run: |
+          railway login --token ${{ secrets.RAILWAY_TOKEN }}
+          railway up --service <NOME_DEL_TUO_SERVIZIO>
+
+      - name: Undeploy bot
+        if: github.event.schedule == '0 2 * * *'
+        run: |
+          railway login --token ${{ secrets.RAILWAY_TOKEN }}
+          railway down --service <NOME_DEL_TUO_SERVIZIO>

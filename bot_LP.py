@@ -107,7 +107,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("🎉 Quiz completato! Risposte salvate.")
 	   
-	    improvement_status = get_improvement_status(chat_id)
+        improvement_status = get_improvement_status(chat_id)
         if improvement_status is not None:
             if improvement_status < 0:
                 msg = f"Bravo/a oggi ne hai fumate {abs(improvement_status)} in meno di ieri, continua così! 💪"

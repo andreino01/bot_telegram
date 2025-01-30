@@ -1,6 +1,7 @@
 name: Railway Deploy & Undeploy
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "32 16 * * *" # Deploy alle 20:00 (UTC 19 = Italia 20)
     - cron: "34 16 * * *"  # Undeploy alle 03:00 (UTC 2 = Italia 3)

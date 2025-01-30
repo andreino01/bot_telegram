@@ -3,8 +3,8 @@ name: Railway Deploy & Undeploy
 on:
   workflow_dispatch:
   schedule:
-    - cron: "32 16 * * *" # Deploy alle 20:00 (UTC 19 = Italia 20)
-    - cron: "34 16 * * *"  # Undeploy alle 03:00 (UTC 2 = Italia 3)
+    - cron: "50 16 * * *" # Deploy alle 20:00 (UTC 19 = Italia 20)
+    - cron: "53 16 * * *"  # Undeploy alle 03:00 (UTC 2 = Italia 3)
 
 jobs:
   deploy_bot:
@@ -21,12 +21,12 @@ jobs:
       
       - name: Deploy bot
         env:
-          RUN_DEPLOY: ${{ github.event.schedule == '32 16 * * *' }}
+          RUN_DEPLOY: ${{ github.event.schedule == '50 16 * * *' }}
         if: env.RUN_DEPLOY == 'true'
         run: railway up --service bot_telegram
 
       - name: Undeploy bot
         env:
-          RUN_UNDEPLOY: ${{ github.event.schedule == '34 16 * * *' }}
+          RUN_UNDEPLOY: ${{ github.event.schedule == '53 16 * * *' }}
         if: env.RUN_UNDEPLOY == 'true'
         run: railway down --service bot_telegram

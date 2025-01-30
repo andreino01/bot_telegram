@@ -130,12 +130,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
          # Crea il bottone per visualizzare il grafico
         keyboard = [
             [InlineKeyboardButton("📊 Mostra il grafico", url=chart_url)],
-			[InlineKeyboardButton("💸 Soldi spesi", callback_data='/soldi_spesi')]
+			[InlineKeyboardButton("💸 Soldi spesi in totale", callback_data='/soldi_spesi')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         # Invia il bottone per visualizzare il grafico o i soldi spesi
         await update.message.reply_text(
-            text="Clicca i bottoni qui sotto per vedere il tuo grafico oppure quanto hai speso in fumo",
+            # text="Clicca i bottoni qui sotto per vedere il tuo grafico oppure quanto hai speso in fumo",
             reply_markup=reply_markup
         )
         del user_states[chat_id]
@@ -179,9 +179,9 @@ async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
 def get_soldi_spesi(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-	637735039: 1,
-        #1832764914: 1,  # Foglio 2
-        5201631829: 2,  # Foglio 3
+	637735039: 2,
+        1832764914: 1,  # Foglio 2
+        #5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 
@@ -201,9 +201,9 @@ def get_soldi_spesi(chat_id):
 def get_improvement_status(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-	637735039: 1,
-        #1832764914: 1,  # Foglio 2
-        5201631829: 2,  # Foglio 3
+	637735039: 2,
+        1832764914: 1,  # Foglio 2
+        #5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 

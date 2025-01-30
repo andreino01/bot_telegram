@@ -2,7 +2,7 @@ name: Railway Deploy & Undeploy
 
 on:
   schedule:
-    - cron: "25 16 * * *" # Deploy alle 20:00 (UTC 19 = Italia 20)
+    - cron: "27 16 * * *" # Deploy alle 20:00 (UTC 19 = Italia 20)
     - cron: "30 16 * * *"  # Undeploy alle 03:00 (UTC 2 = Italia 3)
 
 jobs:
@@ -14,15 +14,18 @@ jobs:
 
       - name: Install Railway CLI
         run: curl -fsSL https://railway.app/install.sh | sh
-
+      
+      - name: Login to Railway
+        run: railway login --token ${{ secrets.RAILWAY_TOKEN }}
+      
       - name: Deploy bot
-        if: github.event.schedule == '25 16 * * *'
-        run: |
-          railway login --token ${{ secrets.RAILWAY_TOKEN }}
-          railway up --service bot_telegram
+        env:
+          RUN_DEPLOY: ${{ github.event.schedule == '25 16 * * *' }}
+        if: env.RUN_DEPLOY == 'true'
+        run: railway up --project abcd1234 --service bot_telegram
 
       - name: Undeploy bot
-        if: github.event.schedule == '30 16 * * *'
-        run: |
-          railway login --token ${{ secrets.RAILWAY_TOKEN }}
-          railway down --service bot_telegram
+        env:
+          RUN_UNDEPLOY: ${{ github.event.schedule == '30 16 * * *' }}
+        if: env.RUN_UNDEPLOY == 'true'
+        run: railway down --project abcd1234 --service bot_telegram

@@ -27,7 +27,11 @@ jobs:
       - name: Deploy to Railway
         run: |
           railway up --service=${{ env.SVC_ID }}
-
+          
+      - name: Debug API Response
+        run: |
+          echo "API Response: $DEPLOYMENT_RESPONSE"
+          
       - name: Get Deployment ID
         run: |
           # Ottieni l'ID del deployment usando l'API di Railway
@@ -43,7 +47,10 @@ jobs:
 
           # Salva ID e timestamp in un file
           echo '{"id": "'$DEPLOYMENT_ID'", "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"}' >> deployments.json
-
+      - name: Install git
+        run: |
+          apt-get update
+          apt-get install -y git
           # Commit e push del file
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"

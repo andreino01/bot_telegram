@@ -96,7 +96,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("⚠️ Risposta non valida! Invia solo numeri.")
         return
     if text == "0":
-        await update.message.reply_text("Bravo/a! 🥳")
+        if chat_id == "700212414":
+            await update.message.reply_text("Bravo! 🥳")
+        else: 
+            await update.message.reply_text("Brava! 🥳")
     
     current_question = user_states[chat_id] - 1
     save_to_sheet(chat_id, text, current_question + 1)
@@ -110,7 +113,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         improvement_status = get_improvement_status(chat_id)
         if improvement_status is not None:
             if improvement_status < 0:
-                msg = f"Bravo/a oggi ne hai fumate {abs(improvement_status)} in meno di ieri, continua così! 💪"
+                if chat_id == "700212414":
+                    msg = f"Bravo oggi ne hai fumate {abs(improvement_status)} in meno di ieri, continua così! 💪"
+                else: 
+                    msg = f"Brava oggi ne hai fumate {abs(improvement_status)} in meno di ieri, continua così! 💪"
+                
             elif improvement_status > 0:
                 msg = f"Oh no!\nOggi ne hai fumate {abs(improvement_status)} in più rispetto a ieri...so che puoi fare di meglio! 💪"
             else:
@@ -128,6 +135,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=937722899&format=image"
         else:
             await update.message.reply_text("⚠️ Impossibile trovare il grafico dei tounprogressi")
+            del user_states[chat_id]
             return
          # Crea il bottone per visualizzare il grafico
         keyboard = [

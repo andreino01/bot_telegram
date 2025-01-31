@@ -1,4 +1,4 @@
-name: Deploy to Railway
+name: Error
 
 on:
   schedule:

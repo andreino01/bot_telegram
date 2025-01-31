@@ -110,17 +110,17 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("🎉 Quiz completato! Risposte salvate.")
 
-	oggi_zero = today_zero(chat_id)
-	if oggi_zero is not None:
-        if oggi_zero == 0:
-            if chat_id == "700212414":
-                msg = f"Ammazza oh! Oggi sei andato da dio!🔥"
-            else: 
-                msg = f"Ammazza oh! Oggi sei andata da dio!🔥"
-		    
-            await update.message.reply_text(msg)
-    else:
-	    await update.message.reply_text("⚠️ Impossibile verificare il tuo progresso rispetto a ieri")
+    	oggi_zero = today_zero(chat_id)
+    	if oggi_zero is not None:
+            if oggi_zero == 0:
+                if chat_id == "700212414":
+                    msg = f"Ammazza oh! Oggi sei andato da dio!🔥"
+                else: 
+                    msg = f"Ammazza oh! Oggi sei andata da dio!🔥"
+    		    
+                await update.message.reply_text(msg)
+        else:
+    	    await update.message.reply_text("⚠️ Impossibile verificare il tuo progresso rispetto a ieri")
 
 	    
         improvement_status = get_improvement_status(chat_id)

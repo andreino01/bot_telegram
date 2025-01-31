@@ -1,0 +1,16 @@
+name: Deploy to Railway
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 20:00 UTC (21:00 ora italiana)
+  workflow_dispatch:       # Permette trigger manuale
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      SVC_ID: bot_telegram
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+      - run: railway up --service=${{ env.SVC_ID }}

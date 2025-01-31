@@ -8,16 +8,20 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    container: alpine:latest
+    container: ubuntu:latest
     env:
       SVC_ID: bot_telegram
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y curl jq
+
       - name: Install Railway CLI
         run: |
-          apk add --no-cache curl
           curl -fsSL https://railway.app/install.sh | sh
 
       - name: Deploy to Railway

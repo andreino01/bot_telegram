@@ -3,6 +3,9 @@ name: Error
 on:
   schedule:
     - cron: '20 15 * * *'  # 20:00 UTC (21:00 ora italiana)
+  push:
+    branches:
+      - error
   workflow_dispatch:       # Permette trigger manuale
 jobs:
   deploy:
@@ -13,4 +16,6 @@ jobs:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: errors
       - run: railway up --service=${{ env.SVC_ID }}

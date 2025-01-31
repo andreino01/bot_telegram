@@ -5,7 +5,7 @@ on:
     - cron: '20 15 * * *'  # 20:00 UTC (21:00 ora italiana)
   push:
     branches:
-      - error
+      - errors
   workflow_dispatch:       # Permette trigger manuale
 jobs:
   deploy:

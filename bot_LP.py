@@ -109,7 +109,20 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await send_question(context, chat_id, current_question + 1)
     else:
         await update.message.reply_text("🎉 Quiz completato! Risposte salvate.")
-	   
+
+	oggi_zero = today_zero(chat_id)
+	if oggi_zero is not None:
+        if oggi_zero == 0:
+            if chat_id == "700212414":
+                msg = f"Ammazza oh! Oggi sei andato da dio!🔥"
+            else: 
+                msg = f"Ammazza oh! Oggi sei andata da dio!🔥"
+		    
+            await update.message.reply_text(msg)
+    else:
+	    await update.message.reply_text("⚠️ Impossibile verificare il tuo progresso rispetto a ieri")
+
+	    
         improvement_status = get_improvement_status(chat_id)
         if improvement_status is not None:
             if improvement_status < 0:
@@ -119,7 +132,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     msg = f"Brava oggi ne hai fumate {abs(improvement_status)} in meno di ieri, continua così! 💪"
                 
             elif improvement_status > 0:
-                msg = f"Oh no!\nOggi ne hai fumate {abs(improvement_status)} in più rispetto a ieri...so che puoi fare di meglio! 💪"
+                msg = f"Ensomma, oggi ne hai fumate {abs(improvement_status)} in più di ieri...so che puoi fare di meglio! 💪"
             else:
                 msg = "Oggi ne hai fumate quante ieri. ⚖️"
             await update.message.reply_text(msg)
@@ -189,9 +202,9 @@ async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
 def get_soldi_spesi(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-	#637735039: 2,
+	    637735039: 2,
         1832764914: 1,  # Foglio 2
-        5201631829: 2,  # Foglio 3
+        #5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 
@@ -211,9 +224,9 @@ def get_soldi_spesi(chat_id):
 def get_improvement_status(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-	#637735039: 2,
+	    637735039: 2,
         1832764914: 1,  # Foglio 2
-        5201631829: 2,  # Foglio 3
+        #5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 
@@ -225,6 +238,25 @@ def get_improvement_status(chat_id):
     
     # Leggi la cella W5 (modifica questo riferimento se cambia posizione nello sheet)
     status_cell = int(worksheet.cell(5, 24).value)  # X5 = riga 5, colonna 24
+    return status_cell
+
+def today_zero(chat_id):
+    # Mappa degli ID e i fogli corrispondenti
+    sheet_map = {
+	    637735039: 2,
+        1832764914: 1,  # Foglio 2
+        #5201631829: 2,  # Foglio 3
+        700212414: 3    # Foglio 4
+    }
+
+    if chat_id not in sheet_map:
+        return None
+
+    # Ottieni il foglio corrispondente
+    worksheet = sh.get_worksheet(sheet_map[chat_id])
+    
+    # Leggi la cella W5 (modifica questo riferimento se cambia posizione nello sheet)
+    status_cell = int(worksheet.cell(8, 24).value)  # X8 = riga 8, colonna 24
     return status_cell
 
 def setup_job_queue(application: Application):

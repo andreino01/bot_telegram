@@ -110,19 +110,18 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("🎉 Quiz completato! Risposte salvate.")
 
-    	oggi_zero = today_zero(chat_id)
-    	if oggi_zero is not None:
+        oggi_zero = today_zero(chat_id)
+        if oggi_zero is not None:
             if oggi_zero == 0:
                 if chat_id == "700212414":
                     msg = f"Ammazza oh! Oggi sei andato da dio!🔥"
                 else: 
                     msg = f"Ammazza oh! Oggi sei andata da dio!🔥"
-    		    
+                
                 await update.message.reply_text(msg)
         else:
-    	    await update.message.reply_text("⚠️ Impossibile verificare il tuo progresso rispetto a ieri")
+            await update.message.reply_text("⚠️ Impossibile verificare il tuo progresso rispetto a ieri")
 
-	    
         improvement_status = get_improvement_status(chat_id)
         if improvement_status is not None:
             if improvement_status < 0:
@@ -139,7 +138,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text("⚠️ Impossibile verificare il tuo progresso rispetto a ieri")
 
-	 # Determina l'URL del grafico per l'utente
+        # Determina l'URL del grafico per l'utente
         if chat_id == 1832764914:
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1293144718&format=image"
         elif chat_id == 5201631829:
@@ -147,22 +146,24 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif chat_id == 700212414:
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=937722899&format=image"
         else:
-            await update.message.reply_text("⚠️ Impossibile trovare il grafico dei tounprogressi")
+            await update.message.reply_text("⚠️ Impossibile trovare il grafico dei tuoi progressi")
             del user_states[chat_id]
             return
-         # Crea il bottone per visualizzare il grafico
+        
+        # Crea il bottone per visualizzare il grafico
         keyboard = [
             [InlineKeyboardButton("📊 Mostra il grafico", url=chart_url)],
-			[InlineKeyboardButton("💸 Soldi spesi in totale", callback_data='/soldi_spesi')]
+            [InlineKeyboardButton("💸 Soldi spesi in totale", callback_data='/soldi_spesi')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
+        
         # Invia il bottone per visualizzare il grafico o i soldi spesi
         await update.message.reply_text(
             text="Clicca i bottoni qui sotto per vedere il tuo grafico oppure quanto hai speso in fumo",
             reply_markup=reply_markup
         )
         del user_states[chat_id]
-
+        
 async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()  # Rispondi al clic del pulsante

@@ -12,10 +12,9 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli@latest
 
-      - name: Login to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway login --browserless $RAILWAY_TOKEN
+      
+      - name: Connect to Railway
+        run: railway connect --help
 
         
       - name: Undeploy Service

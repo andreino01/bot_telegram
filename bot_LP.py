@@ -120,7 +120,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 
                 await update.message.reply_text(msg)
         else:
-            await update.message.reply_text("⚠️ Impossibile verificare il tuo progresso rispetto a ieri")
+            await update.message.reply_text("⚠️ Impossibile verificare i dati di oggi")
 
         improvement_status = get_improvement_status(chat_id)
         if improvement_status is not None:

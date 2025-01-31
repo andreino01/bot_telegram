@@ -131,7 +131,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     msg = f"Brava oggi ne hai fumate {abs(improvement_status)} in meno di ieri, continua così! 💪"
                 
             elif improvement_status > 0:
-                msg = f"Ensomma, oggi ne hai fumate {abs(improvement_status)} in più di ieri...so che puoi fare di meglio! 💪"
+                msg = f"Ma porca di quella... oggi ne hai fumate {abs(improvement_status)} in più di ieri, so che puoi fare di meglio! 💪"
             else:
                 msg = "Oggi ne hai fumate quante ieri. ⚖️"
             await update.message.reply_text(msg)

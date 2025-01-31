@@ -2,9 +2,6 @@ name: Error
 on:
   schedule:
     - cron: '30 15 * * *'  # 20:00 UTC (21:00 ora italiana)
-  push:
-    branches:
-      - errors
   workflow_dispatch:       # Permette trigger manuale
 jobs:
   deploy:

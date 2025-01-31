@@ -15,13 +15,26 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Deploy and get ID
+      - name: Install jq
         run: |
-          # Esegui il deploy
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Deploy to Railway
+        run: |
           railway up --service=${{ env.SVC_ID }}
 
-          # Ottieni l'ultimo deployment ID
-          DEPLOYMENT_ID=$(railway deployments --json | jq -r '.[0].id')
+      - name: Get Deployment ID
+        run: |
+          # Ottieni l'ID del deployment usando l'API di Railway
+          DEPLOYMENT_RESPONSE=$(curl -s -X POST \
+            -H "Authorization: Bearer $RAILWAY_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"query": "{ deployments(projectId: \"TUO_PROJECT_ID\") { edges { node { id createdAt } } } }"}' \
+            https://backboard.railway.app/graphql/v2)
+
+          # Estrai l'ID del deployment più recente
+          DEPLOYMENT_ID=$(echo "$DEPLOYMENT_RESPONSE" | jq -r '.data.deployments.edges[0].node.id')
           echo "Deployment ID: $DEPLOYMENT_ID"
 
           # Salva ID e timestamp in un file

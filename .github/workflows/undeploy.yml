@@ -1,24 +1,23 @@
-name: Undeploy to Railway
+name: Deploy with Intentional Failure to Stop Railway Service
 
 on:
+  workflow_dispatch:  # Permette il trigger manuale
   schedule:
-    - cron: '30 9 * * *'  # 09:30 UTC (10:30 ora italiana)
-  workflow_dispatch:       # Permette trigger manuale
+    - cron: '0 2 * * *'  # Orario programmato
 
 jobs:
-  remove-deployment:
+  deploy-failure:
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
-    
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+
     steps:
       - uses: actions/checkout@v3
 
-      - name: Link Railway Project
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway link --project ${{ secrets.RAILWAY_PROJECT_ID }}
-
-      - name: Remove last deployment
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway down --yes
+      - name: Deploy with Intentional Failure
+        run: |
+          # Fai un deploy intenzionale con errore (ad esempio, un errore nel codice)
+          echo "Intentionally breaking the deployment"
+          exit 1  # Forza un errore nell'Action, che blocca il deploy

@@ -2,7 +2,7 @@ name: Deploy Daily at 8PM
 
 on:
   schedule:
-    - cron: '0 20 * * *'  # 20:00 UTC (22:00 ora italiana)
+    - cron: '25 0 * * *'  # 20:00 UTC (22:00 ora italiana)
   workflow_dispatch:       # Permette trigger manuale
 
 jobs:

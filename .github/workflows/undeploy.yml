@@ -2,20 +2,23 @@ name: Undeploy to Railway
 
 on:
   schedule:
-    - cron: '30 9 * * *'  # 20:00 UTC (22:00 ora italiana)
+    - cron: '30 9 * * *'  # 09:30 UTC (10:30 ora italiana)
   workflow_dispatch:       # Permette trigger manuale
+
 jobs:
   remove-deployment:
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
-    env:
-      SVC_ID: bot_telegram
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    
     steps:
       - uses: actions/checkout@v3
 
       - name: Link Railway Project
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: railway link --project ${{ secrets.RAILWAY_PROJECT_ID }}
 
       - name: Remove last deployment
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: railway down --yes

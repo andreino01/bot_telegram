@@ -15,7 +15,8 @@ jobs:
       - name: Login to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway login --help
+        run: railway login --browserless --token $RAILWAY_TOKEN
+
         
       - name: Undeploy Service
         run: railway down --service bot_telegram

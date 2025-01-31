@@ -2,7 +2,7 @@ name: Undeploy Daily at 3AM
 
 on:
   schedule:
-    - cron: '0 3 * * *'   # 03:00 UTC (05:00 ora italiana)
+    - cron: '28 0 * * *'   # 03:00 UTC (05:00 ora italiana)
   workflow_dispatch:       # Permette trigger manuale
 
 jobs:

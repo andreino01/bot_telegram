@@ -1,8 +1,8 @@
-name: Deploy to Railway
+name: Deploy to Railway at 21 
 
 on:
   schedule:
-    - cron: '0 9 * * *'  # 20:00 UTC (22:00 ora italiana)
+    - cron: '0 21 * * *'  # 20:00 UTC (22:00 ora italiana)
   workflow_dispatch:       # Permette trigger manuale
 jobs:
   deploy:

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Railway CLI
-        run: npm install -g @railway/cli
+        run: npm install -g @railway/cli@latest
 
       - name: Connect to Railway
         run: railway connect ${{ secrets.RAILWAY_TOKEN }}

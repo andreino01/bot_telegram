@@ -1,0 +1,19 @@
+name: Undeploy Daily at 3AM
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # 03:00 UTC (05:00 ora italiana)
+  workflow_dispatch:       # Permette trigger manuale
+
+jobs:
+  undeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Login to Railway
+        run: railway login --token ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Undeploy Service
+        run: railway down --service bot_telegram

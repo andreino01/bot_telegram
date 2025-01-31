@@ -2,7 +2,7 @@ name: Deploy to Railway
 
 on:
   schedule:
-    - cron: '10 15 * * *'  # 20:00 UTC (21:00 ora italiana)
+    - cron: '0 20 * * *'  # 20:00 UTC (21:00 ora italiana)
   workflow_dispatch:       # Permette trigger manuale
 jobs:
   deploy:

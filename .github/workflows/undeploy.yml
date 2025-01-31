@@ -15,7 +15,7 @@ jobs:
       - name: Login to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway login --browserless --token $RAILWAY_TOKEN
+        run: railway login --browserless $RAILWAY_TOKEN
 
         
       - name: Undeploy Service

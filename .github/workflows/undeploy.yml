@@ -16,4 +16,4 @@ jobs:
 
       - name: Remove last deployment
         run: |
-          railway down --yes
+          railway down --service $SVC_ID --yes

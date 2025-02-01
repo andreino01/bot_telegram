@@ -96,7 +96,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("⚠️ Risposta non valida! Invia solo numeri.")
         return
     if text == "0":
-        if chat_id == "700212414":
+        if chat_id == 700212414:
             await update.message.reply_text("Bravo! 🥳")
         else: 
             await update.message.reply_text("Brava! 🥳")
@@ -113,7 +113,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         oggi_zero = today_zero(chat_id)
         if oggi_zero is not None:
             if oggi_zero == 0:
-                if chat_id == "700212414":
+                if chat_id == 700212414:
                     msg = f"Ammazza oh! Oggi sei andato da dio!🔥"
                 else: 
                     msg = f"Ammazza oh! Oggi sei andata da dio!🔥"
@@ -122,21 +122,30 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text("⚠️ Impossibile verificare i dati di oggi")
 
-        improvement_status = get_improvement_status(chat_id)
-        if improvement_status is not None:
-            if improvement_status < 0:
-                if chat_id == "700212414":
-                    msg = f"Bravo oggi ne hai fumate {abs(improvement_status)} in meno di ieri, continua così! 💪"
-                else: 
-                    msg = f"Brava oggi ne hai fumate {abs(improvement_status)} in meno di ieri, continua così! 💪"
-                
-            elif improvement_status > 0:
-                msg = f"Ma porca di quella... oggi ne hai fumate {abs(improvement_status)} in più di ieri, so che puoi fare di meglio! 💪"
-            else:
-                msg = "Oggi ne hai fumate quante ieri. ⚖️"
-            await update.message.reply_text(msg)
-        else:
-            await update.message.reply_text("⚠️ Impossibile verificare il tuo progresso rispetto a ieri")
+            if oggi_zero != 0:
+                improvement_status = get_improvement_status(chat_id)
+                if improvement_status is not None:
+                    if improvement_status < -5:
+                        if chat_id == 700212414:
+                            msg = f"Grandissimo! Oggi ne hai fumate {abs(improvement_status)} in meno di ieri, dai eh nun mullà! 💪"
+                        else: 
+                            msg = f"Grandissima! Oggi ne hai fumate {abs(improvement_status)} in meno di ieri, dai eh nun mullà! 💪"
+                    elif improvement_status < 0:
+                        if chat_id == 700212414:
+                            msg = f"Bravo oggi ne hai fumate {abs(improvement_status)} in meno di ieri, continua così! 💪"
+                        else: 
+                            msg = f"Brava oggi ne hai fumate {abs(improvement_status)} in meno di ieri, continua così! 💪"
+                    elif improvement_status > 10:
+                        msg = f"Ella madò! Oggi ci hai dato dentro eh?! Ne hai fumate {abs(improvement_status)} in più di ieri, ricorda l'obiettivo! 💪"
+                    elif improvement_status > 5:
+                        msg = f"Ma porca di quella... oggi ne hai fumate {abs(improvement_status)} in più di ieri, so che puoi fare di meglio! 💪"    
+                    elif improvement_status > 0:
+                        msg = f"Vabbè oh ogni tanto ci sta fumarne qualcuna in più, per l'esattezza oggi {abs(improvement_status)} in più di ieri, daje eh domani! 💪"
+                    else:
+                        msg = "Oggi ne hai fumate quante ieri. ⚖️"
+                    await update.message.reply_text(msg)
+                else:
+                    await update.message.reply_text("⚠️ Impossibile verificare il tuo progresso rispetto a ieri")
 
         # Determina l'URL del grafico per l'utente
         if chat_id == 1832764914:
@@ -203,9 +212,9 @@ async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
 def get_soldi_spesi(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-	    637735039: 2,
+	    #637735039: 2,
         1832764914: 1,  # Foglio 2
-        #5201631829: 2,  # Foglio 3
+        5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 
@@ -225,9 +234,9 @@ def get_soldi_spesi(chat_id):
 def get_improvement_status(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-	    637735039: 2,
+	    #637735039: 2,
         1832764914: 1,  # Foglio 2
-        #5201631829: 2,  # Foglio 3
+        5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 
@@ -244,9 +253,9 @@ def get_improvement_status(chat_id):
 def today_zero(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-	    637735039: 2,
+	    #637735039: 2,
         1832764914: 1,  # Foglio 2
-        #5201631829: 2,  # Foglio 3
+        5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 

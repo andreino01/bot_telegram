@@ -124,7 +124,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             if oggi_zero != 0:
                 improvement_status = get_improvement_status(chat_id)
-                if improvement_status is not None:
+                if improvement_status != "FALSE":
                     if improvement_status < -5:
                         if chat_id == 700212414:
                             msg = f"Grandissimo! Oggi ne hai fumate {abs(improvement_status)} in meno di ieri, dai eh nun mullà! 💪"
@@ -145,7 +145,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         msg = "Oggi ne hai fumate quante ieri. ⚖️"
                     await update.message.reply_text(msg)
                 else:
-                    await update.message.reply_text("⚠️ Impossibile verificare il tuo progresso rispetto a ieri")
+                    await update.message.reply_text("⚠️ Impossibile verificare il tuo progresso perchè ieri non hai inserito i dati")
 
         # Determina l'URL del grafico per l'utente
         if chat_id == 1832764914:

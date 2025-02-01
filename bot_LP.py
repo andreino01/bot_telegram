@@ -227,7 +227,7 @@ def get_soldi_spesi(chat_id):
     worksheet = sh.get_worksheet(sheet_number)  # Ottieni il foglio corrispondente
 
     # Recupera il valore dalla cella W5
-    soldi_spesi = worksheet.cell(5, 22).value  # La cella V5 è nella riga 5, colonna 22
+    soldi_spesi = worksheet.cell(3, 24).value  # La cella X3 è nella riga 3, colonna 24
     soldi_spesi = soldi_spesi.replace("€", "").strip()
     return soldi_spesi
 
@@ -247,7 +247,7 @@ def get_improvement_status(chat_id):
     worksheet = sh.get_worksheet(sheet_map[chat_id])
     
     # Leggi la cella W5 (modifica questo riferimento se cambia posizione nello sheet)
-    status_cell = int(worksheet.cell(5, 24).value)  # X5 = riga 5, colonna 24
+    status_cell = int(worksheet.cell(6, 24).value)  # X6 = riga 6, colonna 24
     return status_cell
 
 def today_zero(chat_id):
@@ -266,7 +266,7 @@ def today_zero(chat_id):
     worksheet = sh.get_worksheet(sheet_map[chat_id])
     
     # Leggi la cella W5 (modifica questo riferimento se cambia posizione nello sheet)
-    status_cell = int(worksheet.cell(8, 24).value)  # X8 = riga 8, colonna 24
+    status_cell = int(worksheet.cell(9, 24).value)  # X9 = riga 9, colonna 24
     return status_cell
 
 def setup_job_queue(application: Application):

@@ -249,9 +249,9 @@ def get_improvement_status(chat_id):
     # Leggi la cella W5 (modifica questo riferimento se cambia posizione nello sheet)
     #status_cell = int(worksheet.cell(6, 24).value) # X6 = riga 6, colonna 24
     status_cell = worksheet.cell(6, 24).value
-    if str(status_cell).strip().upper() == "FALSE":
-            return "FALSE"
     print(f"DEBUG - Valore cella X6: {status_cell} (tipo: {type(status_cell)})")
+	if str(status_cell).strip().upper() == "FALSE":
+            return "FALSE"
     return int(status_cell)
 
 def today_zero(chat_id):

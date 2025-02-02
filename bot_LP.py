@@ -125,7 +125,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 if improvement_status == 404:
                     await update.message.reply_text("⚠️ Impossibile verificare il tuo progresso perchè ieri non hai inserito i dati")
                 else:
-                    if improvement_status < -5:
+                    if improvement_status < -4:
                         if chat_id == 700212414:
                             msg = f"Grandissimo! Oggi ne hai fumate {abs(improvement_status)} in meno di ieri, dai eh nun mullà! 💪"
                         else: 
@@ -135,12 +135,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             msg = f"Bravo oggi ne hai fumate {abs(improvement_status)} in meno di ieri, continua così! 💪"
                         else: 
                             msg = f"Brava oggi ne hai fumate {abs(improvement_status)} in meno di ieri, continua così! 💪"
-                    elif improvement_status > 10:
+                    elif improvement_status > 9:
                         msg = f"Ella madò! Oggi ci hai dato dentro eh?! Ne hai fumate {abs(improvement_status)} in più di ieri, ricorda l'obiettivo! 💪"
-                    elif improvement_status > 5:
+                    elif improvement_status > 4:
                         msg = f"Ma porca di quella... oggi ne hai fumate {abs(improvement_status)} in più di ieri, so che puoi fare di meglio! 💪"    
                     elif improvement_status > 0:
-                        msg = f"Vabbè oh ogni tanto ci sta fumarne qualcuna in più, per l'esattezza oggi {abs(improvement_status)} in più di ieri, daje eh domani! 💪"
+                        msg = f"Vabbè oh ogni tanto ci sta fumarne qualcuna in più, oggi {abs(improvement_status)} in più di ieri, dai domani ti voglio focused! 💪"
                     else:
                         msg = "Oggi ne hai fumate quante ieri. ⚖️"
                     await update.message.reply_text(msg)

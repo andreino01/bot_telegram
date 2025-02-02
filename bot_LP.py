@@ -119,10 +119,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     msg = f"Ammazza oh! Oggi sei andata da dio!🔥"
                 
                 await update.message.reply_text(msg)
-        else:
-            await update.message.reply_text("⚠️ Impossibile verificare i dati di oggi")
-
-            if oggi_zero != 0:
+            
+            else:
                 improvement_status = get_improvement_status(chat_id)
                 if improvement_status == 404:
                     await update.message.reply_text("⚠️ Impossibile verificare il tuo progresso perchè ieri non hai inserito i dati")
@@ -146,6 +144,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     else:
                         msg = "Oggi ne hai fumate quante ieri. ⚖️"
                     await update.message.reply_text(msg)
+        else:
+            await update.message.reply_text("⚠️ Impossibile verificare i dati di oggi")    
 
         # Determina l'URL del grafico per l'utente
         if chat_id == 1832764914:

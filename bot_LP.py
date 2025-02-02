@@ -58,7 +58,7 @@ async def send_question(context: ContextTypes.DEFAULT_TYPE, chat_id, question_nu
             text=f"{question_num + 1}️⃣ {DOMANDE[question_num]}"
         )
         user_states[chat_id] = question_num + 1  # Aggiorna la domanda corrente per l'utente
-    	else:
+    else:
         await context.bot.send_message(chat_id=chat_id, text="🎉 Quiz completato! Ci rivediamo domani.")
         del user_states[chat_id]  # Rimuove lo stato dell'utente una volta completato il quiz
 

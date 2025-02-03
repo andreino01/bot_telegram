@@ -42,6 +42,9 @@ DOMANDE = [
 
 # Stato degli utenti
 user_states = {}
+# Lista degli utenti che non hanno completato il quiz
+users_mancanti = {}
+
 
 def save_to_sheet(chat_id, risposta, domanda_num):
     worksheet = sh.get_worksheet(0)
@@ -87,6 +90,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
     text = update.message.text.strip()
     
+    if chat_id in users_mancanti:
+        # Se l'utente ha risposto, lo rimuovi dalla lista
+        users_mancanti[chat_id] = False
+    
     if chat_id not in user_states:
         await update.message.reply_text("Il quiz è terminato, aspetta mezzanotte per compilare il prossimo!")
         return
@@ -119,6 +126,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     msg = f"Ammazza oh! Oggi sei andata da dio!🔥"
                 
                 await update.message.reply_text(msg)
+                # Rimuovi l'utente da users_mancanti dopo aver completato il quiz
+                if chat_id in users_mancanti:
+                    users_mancanti[chat_id] = False
             
             else:
                 improvement_status = get_improvement_status(chat_id)
@@ -144,6 +154,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     else:
                         msg = "Oggi ne hai fumate quante ieri. ⚖️"
                     await update.message.reply_text(msg)
+                    # Rimuovi l'utente da users_mancanti dopo aver completato il quiz
+                    if chat_id in users_mancanti:
+                        users_mancanti[chat_id] = False
         else:
             await update.message.reply_text("⚠️ Impossibile verificare i dati di oggi")    
 
@@ -214,13 +227,40 @@ async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
             # Invia il messaggio con il pulsante inline
             await context.bot.send_message(
                 chat_id=chat_id,
-                text="⏰ È il momento del quiz giornaliero!\n Clicca sul pulsante qui sotto per iniziare",
+                text="⏰ È il momento del quiz giornaliero!\n Clicca qui sotto per iniziare",
                 reply_markup=reply_markup
             )
+            users_mancanti[chat_id] = True  # True significa "non ha ancora risposto"
         except Exception as e:
             print(f"Errore nell'inviare il messaggio al chat_id {chat_id}: {e}")
 
+async def invia_promemoria_mattina(context: CallbackContext):
+    #Funzione per inviare il promemoria la mattina agli utenti che non hanno completato il quiz.
+    current_hour = datetime.now().hour
+    
+    # Se l'ora è maggiore o uguale a 16, smetti di inviare notifiche
+    if current_hour > 16:
+        for chat_id in list(users_mancanti.keys()):
+            users_mancanti[chat_id] = False
+        
+    for chat_id in list(users_mancanti.keys()):
+        if users_mancanti[chat_id]:
+            try:
+                # Crea un bottone inline per il comando /quiz
+                keyboard = [
+                    [InlineKeyboardButton("Inizia il quiz", callback_data='/quiz')]
+                ]
+                reply_markup = InlineKeyboardMarkup(keyboard)
+                # Invia il messaggio con il pulsante inline
+                await context.bot.send_message(
+                    chat_id=chat_id,
+                    text=" Hey! Ieri non hai completato il quiz, vuoi farlo ora?\n Clicca qui sotto per iniziare",
+                    reply_markup=reply_markup
+                )
+            except Exception as e:
+                print(f"Errore nell'inviare il messaggio al chat_id {chat_id}: {e}")
 
+            
 def get_soldi_spesi(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
@@ -307,7 +347,6 @@ def get_medie(chat_id):
         print(f"Errore nel recuperare le medie per {chat_id}: {e}")
         return None
 
-
 def setup_job_queue(application: Application):
     """
     Configura il job schedulato per mezzanotte
@@ -316,6 +355,14 @@ def setup_job_queue(application: Application):
     
     # Imposta il fuso orario (es. Europe/Rome per l'Italia)
     timezone = pytz.timezone("Europe/Rome")
+    
+    # Impostazione per il promemoria della mattina (10:00 AM)
+    target_time_mattina = timezone.localize(datetime.combine(datetime.now(), time(10, 0)))
+    utc_time_mattina = target_time_mattina.astimezone(pytz.utc).timetz()
+    
+    # Impostiamo il job per inviare il promemoria ogni giorno alle 10:00 e poi ogni ora
+    job_queue.run_repeating(invia_promemoria_mattina, interval=2*60*60, first=utc_time_mattina)
+    
     target_time = timezone.localize(datetime.combine(datetime.now(), time(0, 0)))
     # Converti in UTC
     utc_time = target_time.astimezone(pytz.utc).timetz()

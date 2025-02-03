@@ -242,7 +242,7 @@ async def invia_promemoria_mattina(context: ContextTypes.DEFAULT_TYPE):
     if current_hour > 16:
         for chat_id in list(users_mancanti.keys()):
             users_mancanti[chat_id] = False
-		    return
+            return
         
     for chat_id in list(users_mancanti.keys()):
         if users_mancanti[chat_id]:

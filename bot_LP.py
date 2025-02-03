@@ -163,7 +163,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Determina l'URL del grafico per l'utente
         if chat_id == 1832764914:
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1293144718&format=image"
-        elif chat_id == 5201631829 or chat_id == 637735039:
+        elif chat_id == 5201631829: #or chat_id == 637735039:
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=36108840&format=image"
         elif chat_id == 700212414:
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=937722899&format=image"
@@ -265,9 +265,9 @@ async def invia_promemoria_mattina(context: ContextTypes.DEFAULT_TYPE):
 def get_soldi_spesi(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-	    637735039: 2,
+		#637735039: 2,
         1832764914: 1,  # Foglio 2
-        #5201631829: 2,  # Foglio 3
+        5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 
@@ -287,9 +287,9 @@ def get_soldi_spesi(chat_id):
 def get_improvement_status(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-	    637735039: 2,
+	    #637735039: 2,
         1832764914: 1,  # Foglio 2
-        #5201631829: 2,  # Foglio 3
+        5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 
@@ -306,9 +306,9 @@ def get_improvement_status(chat_id):
 def today_zero(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-	    637735039: 2,
+	    #637735039: 2,
         1832764914: 1,  # Foglio 2
-        #5201631829: 2,  # Foglio 3
+        5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 
@@ -325,9 +325,9 @@ def today_zero(chat_id):
 def get_medie(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-        637735039: 2,
+        #637735039: 2,
         1832764914: 1,  # Foglio 2
-        #5201631829: 2,  # Foglio 3
+        5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 

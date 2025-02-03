@@ -167,13 +167,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        # Invia il bottone per visualizzare il grafico o i soldi spesi
-        '''await update.message.reply_text(
-            text="Clicca i bottoni qui sotto per vedere il tuo grafico oppure quanto hai speso in fumo",
+        # Invia il bottone per visualizzare il grafico, i soldi spesi o le medie
+        await update.message.reply_text(
+            text="Usa questi pulsanti per le funzioni aggiuntive",
             reply_markup=reply_markup
-        )'''
-        await update.message.reply_text("\u200b", reply_markup=reply_markup)
-        #await update.message.reply_markup(reply_markup)
+        )
         del user_states[chat_id]
         
 async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):

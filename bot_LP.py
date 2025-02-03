@@ -150,7 +150,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Determina l'URL del grafico per l'utente
         if chat_id == 1832764914:
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1293144718&format=image"
-        elif chat_id == 5201631829: # or chat_id == 637735039
+        elif chat_id == 5201631829 or chat_id == 637735039:
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=36108840&format=image"
         elif chat_id == 700212414:
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=937722899&format=image"
@@ -161,16 +161,18 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         # Crea il bottone per visualizzare il grafico
         keyboard = [
-            [InlineKeyboardButton("📊 Mostra il grafico", url=chart_url)],
+            [InlineKeyboardButton("📈 Mostra il grafico", url=chart_url)],
             [InlineKeyboardButton("💸 Soldi spesi in totale", callback_data='/soldi_spesi')]
+            [InlineKeyboardButton("📊 Medie", callback_data='/medie')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         # Invia il bottone per visualizzare il grafico o i soldi spesi
-        await update.message.reply_text(
+        '''await update.message.reply_text(
             text="Clicca i bottoni qui sotto per vedere il tuo grafico oppure quanto hai speso in fumo",
             reply_markup=reply_markup
-        )
+        )'''
+        await update.message.reply_markup(reply_markup)
         del user_states[chat_id]
         
 async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -187,6 +189,17 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
             await context.bot.send_message(chat_id=chat_id, text=f"💸 In tutto hai speso: {soldi_spesi}€")
         else:
             await context.bot.send_message(chat_id=chat_id, text="⚠️ Non ho trovato il tuo totale speso.")
+    elif query.data == '/medie':  # Aggiunto nuovo tasto per le medie
+        medie = get_medie(chat_id)
+        if medie:
+            msg = (f"📊 **Medie giornaliere:**\n"
+                   f"🚬 Drum/Sigarette: {medie[0]}\n"
+                   f"💨 Terea/Heets: {medie[1]}\n"
+                   f"🍁 Canne: {medie[2]}")
+            await context.bot.send_message(chat_id=chat_id, text=msg, parse_mode="Markdown")
+        else:
+            await context.bot.send_message(chat_id=chat_id, text="⚠️ Non ho trovato le tue medie.")
+
 
 async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
     """
@@ -212,9 +225,9 @@ async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
 def get_soldi_spesi(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-	#637735039: 2,
+	    637735039: 2,
         1832764914: 1,  # Foglio 2
-        5201631829: 2,  # Foglio 3
+        #5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 
@@ -234,9 +247,9 @@ def get_soldi_spesi(chat_id):
 def get_improvement_status(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-	    #637735039: 2,
+	    637735039: 2,
         1832764914: 1,  # Foglio 2
-        5201631829: 2,  # Foglio 3
+        #5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 
@@ -253,9 +266,9 @@ def get_improvement_status(chat_id):
 def today_zero(chat_id):
     # Mappa degli ID e i fogli corrispondenti
     sheet_map = {
-	    #637735039: 2,
+	    637735039: 2,
         1832764914: 1,  # Foglio 2
-        5201631829: 2,  # Foglio 3
+        #5201631829: 2,  # Foglio 3
         700212414: 3    # Foglio 4
     }
 
@@ -268,6 +281,33 @@ def today_zero(chat_id):
     # Leggi la cella W5 (modifica questo riferimento se cambia posizione nello sheet)
     status_cell = int(worksheet.cell(9, 24).value)  # X9 = riga 9, colonna 24
     return status_cell
+
+def get_medie(chat_id):
+    # Mappa degli ID e i fogli corrispondenti
+    sheet_map = {
+        637735039: 2,
+        1832764914: 1,  # Foglio 2
+        #5201631829: 2,  # Foglio 3
+        700212414: 3    # Foglio 4
+    }
+
+    if chat_id not in sheet_map:
+        return None
+
+    # Ottieni il foglio corrispondente
+    worksheet = sh.get_worksheet(sheet_map[chat_id])
+
+    try:
+        # Recupera i valori delle tre medie dalle celle Z2, Z3, Z4 (colonna 26)
+        media_1 = worksheet.cell(3, 26).value  # Z3
+        media_2 = worksheet.cell(6, 26).value  # Z6
+        media_3 = worksheet.cell(9, 26).value  # Z9
+
+        return media_1, media_2, media_3
+    except Exception as e:
+        print(f"Errore nel recuperare le medie per {chat_id}: {e}")
+        return None
+
 
 def setup_job_queue(application: Application):
     """

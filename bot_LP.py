@@ -234,7 +234,7 @@ async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
         except Exception as e:
             print(f"Errore nell'inviare il messaggio al chat_id {chat_id}: {e}")
 
-async def invia_promemoria_mattina(context: CallbackContext):
+async def invia_promemoria_mattina(context: ContextTypes.DEFAULT_TYPE):
     #Funzione per inviare il promemoria la mattina agli utenti che non hanno completato il quiz.
     current_hour = datetime.now().hour
     
@@ -242,6 +242,7 @@ async def invia_promemoria_mattina(context: CallbackContext):
     if current_hour > 16:
         for chat_id in list(users_mancanti.keys()):
             users_mancanti[chat_id] = False
+		    return
         
     for chat_id in list(users_mancanti.keys()):
         if users_mancanti[chat_id]:

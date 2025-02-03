@@ -162,7 +162,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Crea il bottone per visualizzare il grafico
         keyboard = [
             [InlineKeyboardButton("📈 Mostra il grafico", url=chart_url)],
-            [InlineKeyboardButton("💸 Soldi spesi in totale", callback_data='/soldi_spesi')]
+            [InlineKeyboardButton("💸 Soldi spesi in totale", callback_data='/soldi_spesi')],
             [InlineKeyboardButton("📊 Medie", callback_data='/medie')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -172,7 +172,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text="Clicca i bottoni qui sotto per vedere il tuo grafico oppure quanto hai speso in fumo",
             reply_markup=reply_markup
         )'''
-        await update.message.reply_text("\u200b", reply_markup=reply_markup)
+        #await update.message.reply_text("\u200b", reply_markup=reply_markup)
+        await update.message.reply_markup(reply_markup)
         del user_states[chat_id]
         
 async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):

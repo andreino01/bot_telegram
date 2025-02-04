@@ -35,10 +35,10 @@ saved_chat_ids = [1832764914, 5201631829, 637735039, 700212414]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
-    637735039: 2,
+    637735039: 3,
     1832764914: 1,  # Foglio 2
-    #5201631829: 2,  # Foglio 3
-    700212414: 3    # Foglio 4
+    5201631829: 2,  # Foglio 3
+    #700212414: 3    # Foglio 4
 }
 
 # Domande del quiz

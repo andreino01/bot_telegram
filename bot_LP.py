@@ -358,7 +358,7 @@ def get_obiettivi(chat_id):
         obiettivo_3 = worksheet.cell(19, 26).value  # Z19
 
         # Vede se l'obiettivo è stato raggiunto
-        goal_reached = worksheet.cell(12, 24).value #X12
+        goal_reached = int(worksheet.cell(12, 24).value) #X12
 
         return obiettivo_1, obiettivo_2, obiettivo_3, goal_reached
     except Exception as e:

@@ -127,10 +127,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("🎉 Quiz completato! Risposte salvate.")
         
         obiettivi = get_obiettivi(chat_id)
-        if obiettivi[3]==1:
-            obj = f"😁 Hai anche raggiunto gli obiettivi giornalieri! 🎯✅❌"
-        else: obj = f"😞 Non hai raggiunto gli obiettivi giornalieri 🎯❌"
-        
+        if obiettivi is None:
+            await update.message.reply_text("⚠️ Errore nel recuperare gli obiettivi.")
+            obj = f"⚠️ C'è stato un errore con gli obiettivi giornalieri! Contattare il grande capo"
+        else:
+            if obiettivi[3]==1:
+                obj = f"😁 Hai anche raggiunto gli obiettivi giornalieri! 🎯✅❌"
+            else: obj = f"😞 Non hai raggiunto gli obiettivi giornalieri 🎯❌"
+
         oggi_zero = today_zero(chat_id)
         if oggi_zero is not None:
             if oggi_zero == 0:
@@ -321,14 +325,7 @@ def today_zero(chat_id):
     return status_cell
 
 def get_medie(chat_id):
-    # Mappa degli ID e i fogli corrispondenti
-    sheet_map = {
-        #637735039: 2,
-        1832764914: 1,  # Foglio 2
-        5201631829: 2,  # Foglio 3
-        700212414: 3    # Foglio 4
-    }
-
+    
     if chat_id not in sheet_map:
         return None
 
@@ -347,14 +344,7 @@ def get_medie(chat_id):
         return None
 
 def get_obiettivi(chat_id):
-    # Mappa degli ID e i fogli corrispondenti
-    sheet_map = {
-        #637735039: 2,
-        1832764914: 1,  # Foglio 2
-        5201631829: 2,  # Foglio 3
-        700212414: 3    # Foglio 4
-    }
-
+    
     if chat_id not in sheet_map:
         return None
 

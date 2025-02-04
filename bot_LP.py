@@ -33,6 +33,14 @@ sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 saved_chat_ids2 = [637735039]
 saved_chat_ids = [1832764914, 5201631829, 637735039, 700212414]
 
+# Mappa degli ID e i fogli corrispondenti
+sheet_map = {
+    637735039: 2,
+    1832764914: 1,  # Foglio 2
+    #5201631829: 2,  # Foglio 3
+    700212414: 3    # Foglio 4
+}
+
 # Domande del quiz
 DOMANDE = [
     "Quanti drum/sigarette hai fumato oggi?",
@@ -117,7 +125,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await send_question(context, chat_id, current_question + 1)
     else:
         await update.message.reply_text("🎉 Quiz completato! Risposte salvate.")
-
+        
+        obiettivi = get_obiettivi(chat_id)
+        if obiettivi[3]==1:
+            obj = f"😁 Hai anche raggiunto gli obiettivi giornalieri! 🎯✅❌"
+        else: obj = f"😞 Non hai raggiunto gli obiettivi giornalieri 🎯❌"
+        
         oggi_zero = today_zero(chat_id)
         if oggi_zero is not None:
             if oggi_zero == 0:
@@ -127,6 +140,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     msg = f"Ammazza oh! Oggi sei andata da dio!🔥"
                 
                 await update.message.reply_text(msg)
+                await update.message.reply_text(obj)
                 # Rimuovi l'utente da users_mancanti dopo aver completato il quiz
                 if chat_id in users_mancanti:
                     users_mancanti[chat_id] = False
@@ -155,6 +169,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     else:
                         msg = "Oggi ne hai fumate quante ieri. ⚖️"
                     await update.message.reply_text(msg)
+                    await update.message.reply_text(obj)
                     # Rimuovi l'utente da users_mancanti dopo aver completato il quiz
                     if chat_id in users_mancanti:
                         users_mancanti[chat_id] = False
@@ -177,11 +192,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = [
             [InlineKeyboardButton("📈 Mostra il grafico", url=chart_url)],
             [InlineKeyboardButton("💸 Soldi spesi in totale", callback_data='/soldi_spesi')],
-            [InlineKeyboardButton("📊 Medie", callback_data='/medie')]
+            [InlineKeyboardButton("📊 Medie", callback_data='/medie')],
+            [InlineKeyboardButton("🎯 Obiettivi", callback_data='/obiettivi')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        # Invia il bottone per visualizzare il grafico, i soldi spesi o le medie
+        # Invia il bottone per visualizzare il grafico, i soldi spesi, le medie o gli obiettivi
         await update.message.reply_text(
             text="Usa questi pulsanti per le funzioni aggiuntive",
             reply_markup=reply_markup
@@ -212,7 +228,16 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
             await context.bot.send_message(chat_id=chat_id, text=msg, parse_mode="Markdown")
         else:
             await context.bot.send_message(chat_id=chat_id, text="⚠️ Non ho trovato le tue medie.")
-
+    elif query.data == '/obiettivi':  # Aggiunto nuovo tasto per gli obiettivi
+        obiettivi = get_obiettivi(chat_id)
+        if obiettivi:
+            msg = (f"🎯 **Obiettivi per domani:**\n"
+                    f"🚬 Drum/Sigarette: {obiettivi[0]}\n"
+                    f"💨 Terea/Heets: {obiettivi[1]}\n"
+                    f"🍁 Canne: {obiettivi[2]}")
+            await context.bot.send_message(chat_id=chat_id, text=msg, parse_mode="Markdown")
+        else:
+            await context.bot.send_message(chat_id=chat_id, text="⚠️ Non ho trovato i tuoi obiettivi.")
 
 async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
     """
@@ -257,14 +282,7 @@ async def invia_promemoria_mattina(context: ContextTypes.DEFAULT_TYPE):
 
             
 def get_soldi_spesi(chat_id):
-    # Mappa degli ID e i fogli corrispondenti
-    sheet_map = {
-		#637735039: 2,
-        1832764914: 1,  # Foglio 2
-        5201631829: 2,  # Foglio 3
-        700212414: 3    # Foglio 4
-    }
-
+    
     # Verifica se l'ID dell'utente è nella mappa
     if chat_id not in sheet_map:
         return None  # Se l'ID non è trovato, ritorna None
@@ -279,13 +297,6 @@ def get_soldi_spesi(chat_id):
     return soldi_spesi
 
 def get_improvement_status(chat_id):
-    # Mappa degli ID e i fogli corrispondenti
-    sheet_map = {
-	    #637735039: 2,
-        1832764914: 1,  # Foglio 2
-        5201631829: 2,  # Foglio 3
-        700212414: 3    # Foglio 4
-    }
 
     if chat_id not in sheet_map:
         return None
@@ -298,13 +309,6 @@ def get_improvement_status(chat_id):
     return status_cell
 
 def today_zero(chat_id):
-    # Mappa degli ID e i fogli corrispondenti
-    sheet_map = {
-	    #637735039: 2,
-        1832764914: 1,  # Foglio 2
-        5201631829: 2,  # Foglio 3
-        700212414: 3    # Foglio 4
-    }
 
     if chat_id not in sheet_map:
         return None
@@ -342,6 +346,35 @@ def get_medie(chat_id):
         print(f"Errore nel recuperare le medie per {chat_id}: {e}")
         return None
 
+def get_obiettivi(chat_id):
+    # Mappa degli ID e i fogli corrispondenti
+    sheet_map = {
+        #637735039: 2,
+        1832764914: 1,  # Foglio 2
+        5201631829: 2,  # Foglio 3
+        700212414: 3    # Foglio 4
+    }
+
+    if chat_id not in sheet_map:
+        return None
+
+    # Ottieni il foglio corrispondente
+    worksheet = sh.get_worksheet(sheet_map[chat_id])
+
+    try:
+        # Recupera i valori dei tre obiettivi dalle celle Z13, Z16, Z19 (colonna 26)
+        obiettivo_1 = worksheet.cell(13, 26).value  # Z13
+        obiettivo_2 = worksheet.cell(16, 26).value  # Z16
+        obiettivo_3 = worksheet.cell(19, 26).value  # Z19
+
+        # Vede se l'obiettivo è stato raggiunto
+        goal_reached = worksheet.cell(12, 24).value #X12
+
+        return obiettivo_1, obiettivo_2, obiettivo_3, goal_reached
+    except Exception as e:
+        print(f"Errore nel recuperare gli obiettivi per {chat_id}: {e}")
+        return None
+    
 def setup_job_queue(application: Application):
     """
     Configura il job schedulato per mezzanotte

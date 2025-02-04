@@ -90,10 +90,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
     text = update.message.text.strip()
     
-    if chat_id in users_mancanti:
-        # Se l'utente ha risposto, lo rimuovi dalla lista
-        users_mancanti[chat_id] = False
-    
     if chat_id not in user_states:
         await update.message.reply_text("Il quiz è terminato, aspetta mezzanotte per compilare il prossimo!")
         return
@@ -107,7 +103,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("Bravo! 🥳")
         else: 
             await update.message.reply_text("Brava! 🥳")
-    
+
+    if chat_id in users_mancanti:
+        # Se l'utente ha risposto, lo rimuovi dalla lista
+        users_mancanti[chat_id] = False
+        del users_mancanti[chat_id]
+        
     current_question = user_states[chat_id] - 1
     save_to_sheet(chat_id, text, current_question + 1)
     
@@ -236,14 +237,7 @@ async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
 
 async def invia_promemoria_mattina(context: ContextTypes.DEFAULT_TYPE):
     #Funzione per inviare il promemoria la mattina agli utenti che non hanno completato il quiz.
-    current_hour = datetime.now().hour
     
-    # Se l'ora è maggiore o uguale a 16, smetti di inviare notifiche
-    if current_hour > 16:
-        for chat_id in list(users_mancanti.keys()):
-            users_mancanti[chat_id] = False
-            return
-        
     for chat_id in list(users_mancanti.keys()):
         if users_mancanti[chat_id]:
             try:
@@ -255,7 +249,7 @@ async def invia_promemoria_mattina(context: ContextTypes.DEFAULT_TYPE):
                 # Invia il messaggio con il pulsante inline
                 await context.bot.send_message(
                     chat_id=chat_id,
-                    text=" Hey! Ieri non hai completato il quiz, vuoi farlo ora?\n Clicca qui sotto per iniziare",
+                    text="🌞 Hey Buongiorno! Ieri non hai completato il quiz, vuoi farlo ora?\n Clicca qui sotto per iniziare",
                     reply_markup=reply_markup
                 )
             except Exception as e:
@@ -361,8 +355,8 @@ def setup_job_queue(application: Application):
     target_time_mattina = timezone.localize(datetime.combine(datetime.now(), time(10, 0)))
     utc_time_mattina = target_time_mattina.astimezone(pytz.utc).timetz()
     
-    # Impostiamo il job per inviare il promemoria ogni giorno alle 10:00 e poi ogni ora
-    job_queue.run_repeating(invia_promemoria_mattina, interval=2*60*60, first=utc_time_mattina)
+    # Impostiamo il job per inviare il promemoria ogni giorno alle 10:00
+    job_queue.run_daily(invia_promemoria_mattina, utc_time_mattina)
     
     target_time = timezone.localize(datetime.combine(datetime.now(), time(0, 0)))
     # Converti in UTC

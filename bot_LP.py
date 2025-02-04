@@ -132,8 +132,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             obj = f"⚠️ C'è stato un errore con gli obiettivi giornalieri! Contattare il grande capo"
         else:
             if obiettivi[3]==1:
-                obj = f"😁 Hai anche raggiunto gli obiettivi giornalieri! 🎯✅❌"
-            else: obj = f"😞 Non hai raggiunto gli obiettivi giornalieri 🎯❌"
+                obj = f"😁 Hai anche raggiunto gli obiettivi di oggi! 🎯✅"
+            else: obj = f"😔 Non hai raggiunto gli obiettivi di oggi 🎯❌"
 
         oggi_zero = today_zero(chat_id)
         if oggi_zero is not None:
@@ -169,7 +169,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     elif improvement_status > 4:
                         msg = f"Ma porca di quella... oggi ne hai fumate {abs(improvement_status)} in più di ieri, so che puoi fare di meglio! 💪"    
                     elif improvement_status > 0:
-                        msg = f"Vabbè oh ogni tanto ci sta fumarne qualcuna in più, oggi {abs(improvement_status)} in più di ieri, dai domani ti voglio focused! 💪"
+                        msg = f"Vabbè oh, ogni tanto ci sta fumarne qualcuna in più, oggi {abs(improvement_status)} in più di ieri, dai domani ti voglio focused! 💪"
                     else:
                         msg = "Oggi ne hai fumate quante ieri. ⚖️"
                     await update.message.reply_text(msg)
@@ -183,7 +183,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Determina l'URL del grafico per l'utente
         if chat_id == 1832764914:
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1293144718&format=image"
-        elif chat_id == 5201631829: #or chat_id == 637735039:
+        elif chat_id == 5201631829 or chat_id == 637735039:
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=36108840&format=image"
         elif chat_id == 700212414:
             chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=937722899&format=image"

@@ -132,7 +132,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             obj = f"⚠️ C'è stato un errore con gli obiettivi giornalieri! Contattare il grande capo"
         else:
             if obiettivi[3]==1:
-                obj = f"😁 Hai anche raggiunto gli obiettivi di oggi! 🎯✅"
+                obj = f"😁 Hai raggiunto gli obiettivi di oggi! 🎯✅"
             else: obj = f"😔 Non hai raggiunto gli obiettivi di oggi 🎯❌"
 
         oggi_zero = today_zero(chat_id)

@@ -75,19 +75,20 @@ async def send_question(context: ContextTypes.DEFAULT_TYPE, chat_id, question_nu
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
-    if chat_id in saved_chat_ids:
-        await update.message.reply_text("Sei già registrato! Usa il comando /quiz per iniziare il quiz.")
-    else:
-        saved_chat_ids.append(chat_id)
-        await update.message.reply_text(
-            f"Benvenuto! Il tuo Chat ID è: {chat_id}. Ora sei registrato. Usa il comando /quiz per iniziare il quiz."
-        )
-
+    if not is_authorized(chat_id):
+         await update.message.reply_text("Non sei autorizzato ad usare questo bot!")
+         return
+    # Se l'utente è autorizzato:
+    await update.message.reply_text("Sei già registrato! Usa il comando /quiz per iniziare il quiz.")
+    
 async def quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Permette di testare manualmente il quiz inviando le domande una alla volta.
     """
     chat_id = update.message.chat_id
+    if not is_authorized(chat_id):
+         await update.message.reply_text("Non sei autorizzato ad usare questo bot!")
+         return
     user_states[chat_id] = 0
     await send_question(context, chat_id, 0)
 
@@ -96,6 +97,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     Gestisce le risposte alle domande.
     """
     chat_id = update.message.chat_id
+    if not is_authorized(chat_id):
+         await update.message.reply_text("Non sei autorizzato ad usare questo bot!")
+         return
     text = update.message.text.strip()
     
     if chat_id not in user_states:
@@ -213,6 +217,10 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
     await query.answer()  # Rispondi al clic del pulsante
     chat_id = query.message.chat.id
 
+    if not is_authorized(chat_id):
+         await context.bot.send_message(chat_id=chat_id, text="Non sei autorizzato ad usare questo bot!")
+         return
+        
     if query.data == '/quiz':  # Se è il pulsante per iniziare il quiz
         user_states[chat_id] = 0
         await send_question(context, chat_id, 0)
@@ -386,6 +394,10 @@ def setup_job_queue(application: Application):
     utc_time = target_time.astimezone(pytz.utc).timetz()
     # Programma il job per le 00:00 ogni giorno
     job_queue.run_daily(inizia_quiz_automatico, utc_time)
+
+def is_authorized(chat_id):
+    return chat_id in saved_chat_ids  # oppure usa una lista dedicata, ad es. allowed_chat_ids
+
 
 if __name__ == '__main__':
     app = Application.builder().token(TOKEN).concurrent_updates(4).build()

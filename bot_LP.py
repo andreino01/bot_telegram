@@ -31,12 +31,12 @@ sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 
 # Lista degli utenti registrati
 saved_chat_ids2 = [637735039]
-saved_chat_ids = [1832764914, 5201631829, 700212414]
+saved_chat_ids = [1832764914, 5201631829, 700212414,637735039]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
-    #637735039: 3,
-    1832764914: 1,  # Foglio 2
+    637735039: 2,
+    #1832764914: 1,  # Foglio 2
     5201631829: 2,  # Foglio 3
     700212414: 3    # Foglio 4
 }
@@ -184,21 +184,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text("⚠️ Impossibile verificare i dati di oggi")    
 
-        # Determina l'URL del grafico per l'utente
-        if chat_id == 1832764914:
-            chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1293144718&format=image"
-        elif chat_id == 5201631829: #or chat_id == 637735039:
-            chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=36108840&format=image"
-        elif chat_id == 700212414:
-            chart_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=937722899&format=image"
-        else:
-            await update.message.reply_text("⚠️ Impossibile trovare il grafico dei tuoi progressi")
-            del user_states[chat_id]
-            return
         
         # Crea il bottone per visualizzare il grafico
         keyboard = [
-            [InlineKeyboardButton("📈 Mostra il grafico", url=chart_url)],
+            [InlineKeyboardButton("📈 Mostra il grafico", callback_data='/grafico')],
             [InlineKeyboardButton("💸 Soldi spesi in totale", callback_data='/soldi_spesi')],
             [InlineKeyboardButton("📊 Medie", callback_data='/medie')],
             [InlineKeyboardButton("🎯 Obiettivi", callback_data='/obiettivi')]
@@ -250,6 +239,23 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
             await context.bot.send_message(chat_id=chat_id, text=msg, parse_mode="Markdown")
         else:
             await context.bot.send_message(chat_id=chat_id, text="⚠️ Non ho trovato i tuoi obiettivi.")
+    elif query.data == '/grafico':  # Se l'utente preme "Grafico"
+        daychart_url = get_grafico_url(chat_id, tipo="giornaliero")
+        weekchart_url = get_grafico_url(chat_id, tipo="settimanale") 
+        keyboard = [
+            [InlineKeyboardButton("📅 Giornaliero", url=daychart_url)],
+            [InlineKeyboardButton("📆 Settimanale", url=weekchart_url)]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await context.bot.send_message(chat_id=chat_id, text="Quale grafico vuoi vedere?", reply_markup=reply_markup)
+
+    elif query.data == '/grafico_giornaliero':
+        chart_url = get_grafico_url(chat_id, tipo="giornaliero")
+        await context.bot.send_message(chat_id=chat_id, text=f"Ecco il grafico giornaliero:\n{chart_url}")
+
+    elif query.data == '/grafico_settimanale':
+        chart_url = get_grafico_url(chat_id, tipo="settimanale")
+        await context.bot.send_message(chat_id=chat_id, text=f"Ecco il grafico settimanale:\n{chart_url}")
 
 async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
     """
@@ -292,7 +298,28 @@ async def invia_promemoria_mattina(context: ContextTypes.DEFAULT_TYPE):
             except Exception as e:
                 print(f"Errore nell'inviare il messaggio al chat_id {chat_id}: {e}")
 
-            
+def get_grafico_url(chat_id, tipo):
+    grafici = {
+        1832764914: {
+            "giornaliero": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1293144718&format=image",
+            "settimanale": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1154554874&format=image"
+        },
+        637735039: {
+            "giornaliero": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1293144718&format=image",
+            "settimanale": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1154554874&format=image"
+        },
+        5201631829: {
+            "giornaliero": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=36108840&format=image",
+            "settimanale": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1306110414&format=image"
+        },
+        700212414: {
+            "giornaliero": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=937722899&format=image",
+            "settimanale": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1136748667&format=image"
+        }
+    }
+    
+    return grafici.get(chat_id, {}).get(tipo, "⚠️ Non ho trovato il grafico richiesto.")
+ 
 def get_soldi_spesi(chat_id):
     
     # Verifica se l'ID dell'utente è nella mappa

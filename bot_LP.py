@@ -136,7 +136,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         obiettivi = get_obiettivi(chat_id, tipo="settimanale")
         calcolo_weekgoal(chat_id)
         oggi = datetime.now() - timedelta(hours=18)
-        if oggi.weekday() == 3:
+        if oggi.weekday() == 6:
             if obiettivi is None:
                 await update.message.reply_text("⚠️ Errore nel recuperare gli obiettivi.")
                 obj = f"⚠️ C'è stato un errore con gli obiettivi settimanali! Contattare il grande capo"
@@ -299,11 +299,12 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
     
     elif query.data == '/settimana_corrente':  # Aggiunto nuovo tasto per le medie
         settimana = get_settimana_corrente(chat_id)
+        weekgoal = get_obiettivi(chat_id, tipo="settimanale")
         if settimana:
             msg = (f"🗓️ **Fumato questa settimana:**\n"
-                   f"🚬 Drum/Sigarette: {settimana[0]}\n"
-                   f"💨 Terea/Heets: {settimana[1]}\n"
-                   f"🍁 Canne: {settimana[2]}")
+                   f"🚬 Drum/Sigarette: {settimana[0]}/{weekgoal[0]}\n"
+                   f"💨 Terea/Heets: {settimana[1]}/{weekgoal[1]}\n"
+                   f"🍁 Canne: {settimana[2]}/{weekgoal[2]}")
             await context.bot.send_message(chat_id=chat_id, text=msg, parse_mode="Markdown")
         else:
             await context.bot.send_message(chat_id=chat_id, text="⚠️ Non ho trovato i tuoi dati di questa settimana.")

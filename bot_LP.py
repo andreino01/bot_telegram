@@ -128,7 +128,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         del users_mancanti[chat_id]
         
     current_question = user_states[chat_id] - 1
-    save_to_sheet(chat_id, text, current_question + 1)
+    await save_to_sheet(chat_id, text, current_question + 1)
     
     # Manda la prossima domanda o completa il quiz
     if current_question < len(DOMANDE) - 1:
@@ -366,7 +366,7 @@ async def reset_quiz_completati(context: ContextTypes.DEFAULT_TYPE):
 
 def get_grafico_url(chat_id, tipo):
     grafici = {
-        637735039: {
+        1832764914: {
             "giornaliero": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1293144718&format=image",
             "settimanale": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1154554874&format=image"
         },

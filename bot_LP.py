@@ -194,7 +194,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     elif improvement_status > 4:
                         msg = f"Ma porca di quella... oggi ne hai fumate {abs(improvement_status)} in più di ieri, so che puoi fare di meglio! 💪"    
                     elif improvement_status > 0:
-                        msg = f"Vabbè oh, ogni tanto ci sta fumarne qualcuna in più, oggi {abs(improvement_status)} in più di ieri, dai domani ti voglio focused! 💪"
+                        msg = f"Vabbè dai, oggi {abs(improvement_status)} in più di ieri, daje eh domani 💪"
                     else:
                         msg = "Oggi ne hai fumate quante ieri. ⚖️"
                     await update.message.reply_text(msg)
@@ -245,7 +245,7 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
         weekmean = get_medie(chat_id, tipo="settimanale")
 
         if daymean and weekmean:
-            msg = (f"📊 **Medie giornaliere:**\n"
+            msg = (f"📊 *Medie giornaliere:*\n"
                    f"🚬 Drum/Sigarette: {daymean[0]}\n"
                    f"💨 Terea/Heets: {daymean[1]}\n"
                    f"🍁 Canne: {daymean[2]}\n\n"
@@ -268,7 +268,7 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
     elif query.data == '/obiettivi_gior':
         daygoal = get_obiettivi(chat_id, tipo="giornaliero")
         if daygoal:
-            msg = ( f"🎯 **Obiettivi per domani:**\n"
+            msg = ( f"🎯 *Obiettivi per domani:*\n"
                     f"🚬 Drum/Sigarette: {daygoal[0]}\n"
                     f"💨 Terea/Heets: {daygoal[1]}\n"
                     f"🍁 Canne: {daygoal[2]}")
@@ -279,7 +279,7 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
     elif query.data == '/obiettivi_sett':
         weekgoal = get_obiettivi(chat_id, tipo="settimanale")
         if weekgoal:
-            msg = ( f"🎯 **Obiettivi per questa settimana:**\n"
+            msg = ( f"🎯 *Obiettivi per questa settimana:*\n"
                     f"🚬 Drum/Sigarette: {weekgoal[0]}\n"
                     f"💨 Terea/Heets: {weekgoal[1]}\n"
                     f"🍁 Canne: {weekgoal[2]}")
@@ -300,11 +300,13 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
     elif query.data == '/settimana_corrente':  # Aggiunto nuovo tasto per le medie
         settimana = get_settimana_corrente(chat_id)
         weekgoal = get_obiettivi(chat_id, tipo="settimanale")
-        if settimana:
-            msg = (f"🗓️ **Fumato questa settimana:**\n"
-                   f"🚬 Drum/Sigarette: {settimana[0]}/{weekgoal[0]}\n"
-                   f"💨 Terea/Heets: {settimana[1]}/{weekgoal[1]}\n"
-                   f"🍁 Canne: {settimana[2]}/{weekgoal[2]}")
+        if settimana and weekgoal:
+            categorie = ["🚬 Drum/Sigarette", "💨 Terea/Heets", "🍁 Canne"]
+            colori = ["🟢", "🟡", "🔴"]
+            msg = "🗓️ *Fumato questa settimana:*\n"
+            for i in range(3):  
+                stato = colori[0] if settimana[i] < weekgoal[i] else colori[1] if settimana[i] == weekgoal[i] else colori[2]
+                msg += f"{stato} {categorie[i]}: {settimana[i]} /{weekgoal[i]}  {stato}\n"
             await context.bot.send_message(chat_id=chat_id, text=msg, parse_mode="Markdown")
         else:
             await context.bot.send_message(chat_id=chat_id, text="⚠️ Non ho trovato i tuoi dati di questa settimana.")

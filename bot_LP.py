@@ -6,6 +6,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, time, timedelta
 import pytz
 
+
 TOKEN = os.getenv('TOKEN')
 bot = Bot(token=TOKEN)
 
@@ -30,13 +31,13 @@ gc = gspread.authorize(creds)
 sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 
 # Lista degli utenti registrati
-saved_chat_ids2 = [637735039]
-saved_chat_ids = [1832764914, 5201631829, 700212414]
+saved_chat_ids = [637735039]
+saved_chat_ids2 = [1832764914, 5201631829, 700212414]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
-    #637735039: 1,
-    1832764914: 1,  # Foglio 2
+    637735039: 1,
+    #1832764914: 1,  # Foglio 2
     5201631829: 2,  # Foglio 3
     700212414: 3    # Foglio 4
 }
@@ -249,7 +250,7 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
                    f"🚬 Drum/Sigarette: {daymean[0]}\n"
                    f"💨 Terea/Heets: {daymean[1]}\n"
                    f"🍁 Canne: {daymean[2]}\n\n"
-                   f"📊 **Medie settimanali:**\n"
+                   f"📊 *Medie settimanali:*\n"
                    f"🚬 Drum/Sigarette: {weekmean[0]}\n"
                    f"💨 Terea/Heets: {weekmean[1]}\n"
                    f"🍁 Canne: {weekmean[2]}")
@@ -304,9 +305,9 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
             categorie = ["🚬 Drum/Sigarette", "💨 Terea/Heets", "🍁 Canne"]
             colori = ["🟢", "🟡", "🔴"]
             msg = "🗓️ *Fumato questa settimana:*\n"
-            for i in range(3):  
-                stato = colori[0] if settimana[i] < weekgoal[i] else colori[1] if settimana[i] == weekgoal[i] else colori[2]
-                msg += f"{stato} {categorie[i]}: {settimana[i]} /{weekgoal[i]}  {stato}\n"
+            for i in range(3):
+                stato = colori[0] if (settimana[i] == 0 or settimana[i] < weekgoal[i]) else colori[1] if settimana[i] == weekgoal[i] else colori[2]
+                msg += f"{categorie[i]}: {settimana[i]}*/{weekgoal[i]}*  {stato}\n"
             await context.bot.send_message(chat_id=chat_id, text=msg, parse_mode="Markdown")
         else:
             await context.bot.send_message(chat_id=chat_id, text="⚠️ Non ho trovato i tuoi dati di questa settimana.")
@@ -428,9 +429,9 @@ def get_medie(chat_id, tipo):
     if tipo == "giornaliero":
         try:
             # Recupera i valori delle tre medie dalle celle Z2, Z3, Z4 (colonna 26)
-            daymean_1 = worksheet.cell(3, 26).value  # Z3
-            daymean_2 = worksheet.cell(6, 26).value  # Z6
-            daymean_3 = worksheet.cell(9, 26).value  # Z9
+            daymean_1 = int(worksheet.cell(3, 26).value)  # Z3
+            daymean_2 = int(worksheet.cell(6, 26).value)  # Z6
+            daymean_3 = int(worksheet.cell(9, 26).value)  # Z9
 
             return daymean_1, daymean_2, daymean_3
         except Exception as e:
@@ -440,9 +441,9 @@ def get_medie(chat_id, tipo):
     elif tipo == "settimanale":
         try:
             # Recupera i valori delle tre medie settimanali dalle celle Z5, Z6, Z7 (colonna 26)
-            weekmean_1 = worksheet.cell(23, 26).value  # Z12
-            weekmean_2 = worksheet.cell(26, 26).value  # Z15
-            weekmean_3 = worksheet.cell(29, 26).value  # Z18
+            weekmean_1 = int(worksheet.cell(23, 26).value)  # Z12
+            weekmean_2 = int(worksheet.cell(26, 26).value)  # Z15
+            weekmean_3 = int(worksheet.cell(29, 26).value)  # Z18
 
             return weekmean_1, weekmean_2, weekmean_3
         except Exception as e:
@@ -459,9 +460,9 @@ def get_obiettivi(chat_id,tipo):
     if tipo == "giornaliero":
         try:
             # Recupera i valori dei tre obiettivi dalle celle Z13, Z16, Z19 (colonna 26)
-            obiettivo_1 = worksheet.cell(13, 26).value  # Z13
-            obiettivo_2 = worksheet.cell(16, 26).value  # Z16
-            obiettivo_3 = worksheet.cell(19, 26).value  # Z19
+            obiettivo_1 = int(worksheet.cell(13, 26).value)  # Z13
+            obiettivo_2 = int(worksheet.cell(16, 26).value)  # Z16
+            obiettivo_3 = int(worksheet.cell(19, 26).value)  # Z19
 
             # Vede se l'obiettivo è stato raggiunto
             goal_reached = int(worksheet.cell(12, 24).value) #X12
@@ -473,9 +474,9 @@ def get_obiettivi(chat_id,tipo):
     elif tipo == "settimanale":
         try:
             # Recupera i valori dei tre obiettivi dalle celle X16, X19, X22 (colonna 24)
-            obiettivo_1 = worksheet.cell(16, 24).value  # X16
-            obiettivo_2 = worksheet.cell(19, 24).value  # X19
-            obiettivo_3 = worksheet.cell(22, 24).value  # X22
+            obiettivo_1 = int(worksheet.cell(16, 24).value)  # X16
+            obiettivo_2 = int(worksheet.cell(19, 24).value)  # X19
+            obiettivo_3 = int(worksheet.cell(22, 24).value)  # X22
 
             # Vede se l'obiettivo è stato raggiunto
             goal_reached = int(worksheet.cell(25, 24).value) #X25
@@ -494,9 +495,9 @@ def calcolo_weekgoal(chat_id):
 
     try:
         # Recupera i valori dei tre obiettivi dalle celle Z33, Z36, Z39 (colonna 26)
-        obiettivo_1 = worksheet.cell(33, 26).value  # Z33
-        obiettivo_2 = worksheet.cell(36, 26).value  # Z36
-        obiettivo_3 = worksheet.cell(39, 26).value  # Z39
+        obiettivo_1 = int(worksheet.cell(33, 26).value)  # Z33
+        obiettivo_2 = int(worksheet.cell(36, 26).value)  # Z36
+        obiettivo_3 = int(worksheet.cell(39, 26).value)  # Z39
 
         worksheet.update_acell("X16", obiettivo_1)
         worksheet.update_acell("X19", obiettivo_2)
@@ -517,9 +518,9 @@ def get_settimana_corrente(chat_id):
 
     try:
         # Recupera i valori dei tre obiettivi dalle celle X29, X32, X35 (colonna 24)
-        obiettivo_1 = worksheet.cell(29, 24).value  # X29
-        obiettivo_2 = worksheet.cell(32, 24).value  # X32
-        obiettivo_3 = worksheet.cell(35, 24).value  # X35
+        obiettivo_1 = int(worksheet.cell(29, 24).value)  # X29
+        obiettivo_2 = int(worksheet.cell(32, 24).value)  # X32
+        obiettivo_3 = int(worksheet.cell(35, 24).value)  # X35
         
         return obiettivo_1, obiettivo_2, obiettivo_3
 

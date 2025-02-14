@@ -37,10 +37,10 @@ saved_chat_ids2 = [1832764914, 5201631829, 700212414]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
-    #637735039: 1,
+    637735039: 3,
     1832764914: 1,  # Foglio 2
     5201631829: 2,  # Foglio 3
-    700212414: 3    # Foglio 4
+    #700212414: 3    # Foglio 4
 }
 
 # Domande del quiz
@@ -58,7 +58,7 @@ users_mancanti = {}
 quiz_completati = {}
 
 async def save_to_sheet(chat_id, risposta, domanda_num):
-	worksheet = worksheet = await asyncio.to_thread(sh.get_worksheet, 0)
+	worksheet = await asyncio.to_thread(sh.get_worksheet, 0)
 	timestamp = (datetime.now() - timedelta(hours=18)).strftime("%Y-%m-%d")
 	row = [str(chat_id), domanda_num, risposta, timestamp]
 	await asyncio.to_thread(worksheet.append_row, row)

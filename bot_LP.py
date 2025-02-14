@@ -1,10 +1,11 @@
 from telegram import Update, Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
-import os
-import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, time, timedelta
 import pytz
+import os
+import gspread
+import asyncio
 
 
 TOKEN = os.getenv('TOKEN')
@@ -31,8 +32,8 @@ gc = gspread.authorize(creds)
 sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 
 # Lista degli utenti registrati
-saved_chat_ids2 = [637735039]
-saved_chat_ids = [1832764914, 5201631829, 700212414]
+saved_chat_ids = [637735039]
+saved_chat_ids2 = [1832764914, 5201631829, 700212414]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
@@ -56,10 +57,11 @@ users_mancanti = {}
 # Dizionario per tenere traccia degli utenti che hanno completato il quiz
 quiz_completati = {}
 
-def save_to_sheet(chat_id, risposta, domanda_num):
-    worksheet = sh.get_worksheet(0)
-    timestamp = (datetime.now() - timedelta(hours=18)).strftime("%Y-%m-%d")
-    worksheet.append_row([str(chat_id), domanda_num, risposta, timestamp])
+async def save_to_sheet(chat_id, risposta, domanda_num):
+	worksheet = worksheet = await asyncio.to_thread(sh.get_worksheet, 0)
+	timestamp = (datetime.now() - timedelta(hours=18)).strftime("%Y-%m-%d")
+	row = [str(chat_id), domanda_num, risposta, timestamp]
+	await asyncio.to_thread(worksheet.append_row, row)
 
 async def send_question(context: ContextTypes.DEFAULT_TYPE, chat_id, question_num):
     """

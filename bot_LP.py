@@ -32,15 +32,15 @@ gc = gspread.authorize(creds)
 sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 
 # Lista degli utenti registrati
-saved_chat_ids = [637735039]
-saved_chat_ids2 = [1832764914, 5201631829, 700212414]
+saved_chat_ids2 = [637735039]
+saved_chat_ids = [1832764914, 5201631829, 700212414]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
-    637735039: 3,
+    #637735039: 3,
     1832764914: 1,  # Foglio 2
     5201631829: 2,  # Foglio 3
-    #700212414: 3    # Foglio 4
+    700212414: 3    # Foglio 4
 }
 
 # Domande del quiz

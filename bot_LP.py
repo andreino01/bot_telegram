@@ -429,9 +429,9 @@ def get_medie(chat_id, tipo):
     if tipo == "giornaliero":
         try:
             # Recupera i valori delle tre medie dalle celle Z2, Z3, Z4 (colonna 26)
-            daymean_1 = int(worksheet.cell(3, 26).value)  # Z3
-            daymean_2 = int(worksheet.cell(6, 26).value)  # Z6
-            daymean_3 = int(worksheet.cell(9, 26).value)  # Z9
+            daymean_1 = worksheet.cell(3, 26).value  # Z3
+            daymean_2 = worksheet.cell(6, 26).value  # Z6
+            daymean_3 = worksheet.cell(9, 26).value  # Z9
 
             return daymean_1, daymean_2, daymean_3
         except Exception as e:
@@ -441,9 +441,9 @@ def get_medie(chat_id, tipo):
     elif tipo == "settimanale":
         try:
             # Recupera i valori delle tre medie settimanali dalle celle Z5, Z6, Z7 (colonna 26)
-            weekmean_1 = int(worksheet.cell(23, 26).value)  # Z12
-            weekmean_2 = int(worksheet.cell(26, 26).value)  # Z15
-            weekmean_3 = int(worksheet.cell(29, 26).value)  # Z18
+            weekmean_1 = worksheet.cell(23, 26).value  # Z12
+            weekmean_2 = worksheet.cell(26, 26).value  # Z15
+            weekmean_3 = worksheet.cell(29, 26).value  # Z18
 
             return weekmean_1, weekmean_2, weekmean_3
         except Exception as e:

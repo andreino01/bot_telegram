@@ -581,7 +581,7 @@ def webhook():
     """
     if request.method == 'POST':
         update = Update.de_json(request.get_json(force=True), bot)
-        application.process_update(update)
+        asyncio.run(application.process_update(update))
         return 'ok', 200
     return 'Method Not Allowed', 405
 
@@ -593,4 +593,5 @@ async def set_webhook_async():
 	
 if __name__ == '__main__':
 	asyncio.run(set_webhook_async())
-	app.run(host='0.0.0.0', port=8080)
+	port = int(os.getenv("PORT", 8080))
+	app.run(host='0.0.0.0', port=port)

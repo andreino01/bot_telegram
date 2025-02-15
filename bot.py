@@ -596,6 +596,5 @@ if __name__ == '__main__':
     # Imposta il webhook e avvia l'app Flask
     async def main():
         await set_webhook_async()
-        app.run(host='0.0.0.0', port=443)
 
     asyncio.run(main())

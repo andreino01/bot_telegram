@@ -1,1 +1,1 @@
-web: python bot_LP.py
+web: python bot.py

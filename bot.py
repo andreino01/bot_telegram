@@ -594,4 +594,3 @@ async def set_webhook_async():
 if __name__ == '__main__':
 	asyncio.run(set_webhook_async())
 	app.run(host='0.0.0.0', port=8080)
-    

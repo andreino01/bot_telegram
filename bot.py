@@ -7,6 +7,7 @@ from datetime import datetime, time, timedelta
 import pytz
 import logging
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 import asyncio
 from flask import Flask, request
 
@@ -591,10 +592,6 @@ async def set_webhook_async():
     logger.info(f"Webhook impostato su {WEBHOOK_URL}")
 	
 if __name__ == '__main__':
-    import asyncio
-
-    # Imposta il webhook e avvia l'app Flask
-    async def main():
-        await set_webhook_async()
-
-    asyncio.run(main())
+	asyncio.run(set_webhook_async())
+	app.run(host='0.0.0.0', port=8080)
+    

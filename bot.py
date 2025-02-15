@@ -584,8 +584,18 @@ def webhook():
         return 'ok', 200
     return 'Method Not Allowed', 405
 
-if __name__ == '__main__':
+# Funzione asincrona per impostare il webhook
+async def set_webhook_async():
     WEBHOOK_URL = "https://bot-telegram-no-fumo.up.railway.app/webhook"
-    application.bot.set_webhook(url=WEBHOOK_URL)
+    await application.bot.set_webhook(url=WEBHOOK_URL)
+    logger.info(f"Webhook impostato su {WEBHOOK_URL}")
+	
+if __name__ == '__main__':
+    import asyncio
 
-    app.run(host='0.0.0.0', port=443)  # Usa la porta 443 per HTTPS
+    # Imposta il webhook e avvia l'app Flask
+    async def main():
+        await set_webhook_async()
+        app.run(host='0.0.0.0', port=443)
+
+    asyncio.run(main())

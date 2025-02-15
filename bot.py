@@ -7,7 +7,6 @@ import os
 import gspread
 import asyncio
 
-
 TOKEN = os.getenv('TOKEN')
 bot = Bot(token=TOKEN)
 

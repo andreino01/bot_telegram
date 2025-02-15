@@ -6,4 +6,3 @@ schedule==1.2.0
 pytz==2023.3.post1
 Flask==2.3.2
 gunicorn==20.1.0
-uvicorn==0.29.0

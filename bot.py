@@ -1,14 +1,18 @@
 from telegram import Update, Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
+import os
+import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, time, timedelta
 import pytz
-import os
-import gspread
+import logging
+logging.basicConfig(level=logging.INFO)
 import asyncio
+from flask import Flask, request
 
 TOKEN = os.getenv('TOKEN')
-bot = Bot(token=TOKEN)
+application = Application.builder().token(TOKEN).concurrent_updates(4).build()
+bot =application.bot
 
 # Google Sheets setup
 GOOGLE_CREDS = {
@@ -30,15 +34,18 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(GOOGLE_CREDS, scope)
 gc = gspread.authorize(creds)
 sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 
+# Inizializza Flask
+app = Flask(__name__)
+
 # Lista degli utenti registrati
-saved_chat_ids2 = [637735039]
-saved_chat_ids = [1832764914, 5201631829, 700212414]
+saved_chat_ids = [637735039]
+saved_chat_ids2 = [1832764914, 5201631829, 700212414]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
-    #637735039: 3,
+    637735039: 2,
     1832764914: 1,  # Foglio 2
-    5201631829: 2,  # Foglio 3
+    #5201631829: 2,  # Foglio 3
     700212414: 3    # Foglio 4
 }
 
@@ -153,14 +160,18 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Aggiungi l'utente al dizionario dei quiz completati
         quiz_completati[chat_id] = True
 
+        if chat_id in users_mancanti:
+            users_mancanti[chat_id] = False
+
         obiettivi = get_obiettivi(chat_id, tipo="giornaliero")
         if obiettivi is None:
             await update.message.reply_text("⚠️ Errore nel recuperare gli obiettivi.")
             obj = f"⚠️ C'è stato un errore con gli obiettivi giornalieri! Contattare il grande capo"
-        else:
-            if obiettivi[3]==1:
-                obj = f"😊 Hai raggiunto gli obiettivi di oggi! 🎯✅"
-            else: obj = f"😔 Non hai raggiunto gli obiettivi di oggi 🎯❌"
+            return
+        
+        if obiettivi[3]==1:
+            obj = f"😊 Hai raggiunto gli obiettivi di oggi! 🎯✅"
+        else: obj = f"😔 Non hai raggiunto gli obiettivi di oggi 🎯❌"
 
         oggi_zero = today_zero(chat_id)
         if oggi_zero is not None:
@@ -169,12 +180,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     msg = f"Ammazza oh! Oggi sei andato da dio!🔥"
                 else: 
                     msg = f"Ammazza oh! Oggi sei andata da dio!🔥"
-                
-                await update.message.reply_text(msg)
-                await update.message.reply_text(obj)
-                # Rimuovi l'utente da users_mancanti dopo aver completato il quiz
-                if chat_id in users_mancanti:
-                    users_mancanti[chat_id] = False
             
             else:
                 improvement_status = get_improvement_status(chat_id)
@@ -199,30 +204,26 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         msg = f"Vabbè dai, oggi {abs(improvement_status)} in più di ieri, daje eh domani 💪"
                     else:
                         msg = "Oggi ne hai fumate quante ieri. ⚖️"
-                    await update.message.reply_text(msg)
-                    await update.message.reply_text(obj)
-                    # Rimuovi l'utente da users_mancanti dopo aver completato il quiz
-                    if chat_id in users_mancanti:
-                        users_mancanti[chat_id] = False
+            await update.message.reply_text(msg)
+            await update.message.reply_text(obj)
+            
         else:
             await update.message.reply_text("⚠️ Impossibile verificare i dati di oggi")    
 
-        # Crea il bottone per visualizzare il grafico
-        keyboard = [
-            [InlineKeyboardButton("📈 Mostra il grafico", callback_data='/grafico')],
-            [InlineKeyboardButton("💸 Soldi spesi in totale", callback_data='/soldi_spesi')],
-            [InlineKeyboardButton("📊 Medie", callback_data='/medie')],
-            [InlineKeyboardButton("🎯 Obiettivi", callback_data='/obiettivi')],
-            [InlineKeyboardButton("🗓️ Questa settimana", callback_data='/settimana_corrente')]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
+        buttons = [
+            ("📈 Mostra il grafico", "/grafico"),
+            ("💸 Soldi spesi in totale", "/soldi_spesi"),
+            ("📊 Medie", "/medie"),
+            ("🎯 Obiettivi", "/obiettivi"),
+            ("🗓️ Questa settimana", "/settimana_corrente")]
+        
+        reply_markup = create_keyboard(buttons)
         
         # Invia il bottone per visualizzare il grafico, i soldi spesi, le medie o gli obiettivi
         await update.message.reply_text(
             text="Usa questi pulsanti per le funzioni aggiuntive",
             reply_markup=reply_markup
         )
-        del user_states[chat_id]
         
 async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -260,11 +261,11 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
         else:
             await context.bot.send_message(chat_id=chat_id, text="⚠️ Non ho trovato le tue medie.")
     elif query.data == '/obiettivi':  # Aggiunto nuovo tasto per gli obiettivi
-        keyboard = [
-            [InlineKeyboardButton("🎯 Giornaliero", callback_data='/obiettivi_gior')],
-            [InlineKeyboardButton("🎯 Settimanale", callback_data='/obiettivi_sett')]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
+        buttons = [
+            ("🎯 Giornaliero", "/obiettivi_gior"),
+            ("🎯 Settimanale", "/obiettivi_sett")]
+        reply_markup = create_keyboard(buttons)
+        
         await context.bot.send_message(chat_id=chat_id, text="Quali obiettivi vuoi vedere?", reply_markup=reply_markup)
 
     elif query.data == '/obiettivi_gior':
@@ -322,10 +323,8 @@ async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
             continue  # Salta l'utente se ha già completato il quiz
         try:
             # Crea un bottone inline per il comando /quiz
-            keyboard = [
-                [InlineKeyboardButton("Inizia il quiz", callback_data='/quiz')]
-            ]
-            reply_markup = InlineKeyboardMarkup(keyboard)
+            button = [("📝 Inizia il quiz", "/quiz")]
+            reply_markup = create_keyboard(button)
             # Invia il messaggio con il pulsante inline
             await context.bot.send_message(
                 chat_id=chat_id,
@@ -343,10 +342,8 @@ async def invia_promemoria_mattina(context: ContextTypes.DEFAULT_TYPE):
         if users_mancanti[chat_id] and (chat_id not in quiz_completati or not quiz_completati[chat_id]):
             try:
                 # Crea un bottone inline per il comando /quiz
-                keyboard = [
-                    [InlineKeyboardButton("Inizia il quiz", callback_data='/quiz')]
-                ]
-                reply_markup = InlineKeyboardMarkup(keyboard)
+                button = [("📝 Inizia il quiz", "/quiz")]
+                reply_markup = create_keyboard(button)
                 # Invia il messaggio con il pulsante inline
                 await context.bot.send_message(
                     chat_id=chat_id,
@@ -362,6 +359,11 @@ async def reset_quiz_completati(context: ContextTypes.DEFAULT_TYPE):
     """
     global quiz_completati
     quiz_completati = {}
+
+def create_keyboard(buttons):
+    #Crea una tastiera inline con i pulsanti specificati.
+    keyboard = [[InlineKeyboardButton(text, callback_data=data)] for text, data in buttons]
+    return InlineKeyboardMarkup(keyboard)
 
 def get_grafico_url(chat_id, tipo):
     grafici = {
@@ -455,6 +457,9 @@ def get_obiettivi(chat_id,tipo):
     
     if chat_id not in sheet_map:
         return None
+    
+    if tipo not in ["giornaliero", "settimanale"]:
+        return None
 
     # Ottieni il foglio corrispondente
     worksheet = sh.get_worksheet(sheet_map[chat_id])
@@ -472,7 +477,7 @@ def get_obiettivi(chat_id,tipo):
         except Exception as e:
             print(f"Errore nel recuperare gli obiettivi per {chat_id}: {e}")
             return None
-    elif tipo == "settimanale":
+    else:
         try:
             # Recupera i valori dei tre obiettivi dalle celle X16, X19, X22 (colonna 24)
             obiettivo_1 = int(worksheet.cell(16, 24).value)  # X16
@@ -556,16 +561,31 @@ def is_authorized(chat_id):
     return chat_id in saved_chat_ids  # oppure usa una lista dedicata, ad es. allowed_chat_ids
 
 
-if __name__ == '__main__':
-    app = Application.builder().token(TOKEN).concurrent_updates(4).build()
     # Handlers
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("quiz", quiz))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    app.add_handler(CallbackQueryHandler(handle_button_click))
-		
-  
-    # Configura il job schedulato
-    setup_job_queue(app)
-    # Avvia il bot in long polling
-    app.run_polling()
+application.add_handler(CommandHandler("start", start))
+application.add_handler(CommandHandler("quiz", quiz))
+application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+application.add_handler(CallbackQueryHandler(handle_button_click))
+
+setup_job_queue(application)
+
+@app.route('/')
+def home():
+    return "Il bot è attivo!"
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    """
+    Gestisce le richieste in arrivo da Telegram.
+    """
+    if request.method == 'POST':
+        update = Update.de_json(request.get_json(force=True), bot)
+        application.process_update(update)
+        return 'ok', 200
+    return 'Method Not Allowed', 405
+
+if __name__ == '__main__':
+    WEBHOOK_URL = "https://bot-telegram-no-fumo.up.railway.app/webhook"
+    application.bot.set_webhook(url=WEBHOOK_URL)
+
+    app.run(host='0.0.0.0', port=443)  # Usa la porta 443 per HTTPS

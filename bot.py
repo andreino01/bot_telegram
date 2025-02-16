@@ -38,15 +38,15 @@ gc = gspread.authorize(creds)
 sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 
 # Lista degli utenti registrati
-saved_chat_ids = [637735039]
-saved_chat_ids2 = [1832764914, 5201631829, 700212414, 637735039]
+saved_chat_ids2 = [637735039]
+saved_chat_ids = [1832764914, 5201631829, 700212414]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
-    637735039: 3,
+    #637735039: 3,
     1832764914: 1,  # Foglio 2
     5201631829: 2,  # Foglio 3
-    #700212414: 3    # Foglio 4
+    700212414: 3    # Foglio 4
 }
 
 # Domande del quiz
@@ -82,7 +82,7 @@ async def send_question(context: ContextTypes.DEFAULT_TYPE, chat_id, question_nu
     else:
         await context.bot.send_message(chat_id=chat_id, text="🎉 Quiz completato! Ci rivediamo domani.")
         # Aggiungi l'utente al dizionario dei quiz completati
-        quiz_completati[chat_id] = False #True
+        quiz_completati[chat_id] = True
         del user_states[chat_id]  # Rimuove lo stato dell'utente una volta completato il quiz
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -158,7 +158,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     await context.bot.send_message(chat_id=chat_id, text=obj, parse_mode="Markdown")
 
         # Aggiungi l'utente al dizionario dei quiz completati
-        quiz_completati[chat_id] = False #True
+        quiz_completati[chat_id] = True
 
         obiettivi = get_obiettivi(chat_id, tipo="giornaliero")
         if obiettivi is None:
@@ -398,7 +398,7 @@ def get_grafico_url(chat_id, tipo):
             "giornaliero": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=36108840&format=image",
             "settimanale": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1306110414&format=image"
         },
-        637735039: {
+        700212414: {
             "giornaliero": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=937722899&format=image",
             "settimanale": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1136748667&format=image"
         }
@@ -562,27 +562,21 @@ def setup_job_queue(application: Application):
     
     # Imposta il fuso orario (es. Europe/Rome per l'Italia)
     timezone = pytz.timezone("Europe/Rome")
-    
-    # Impostazione per il promemoria della mattina (10:00)
-    target_time_mattina = timezone.localize(datetime.combine(datetime.now(), time(10, 0)))
-    utc_time_mattina = target_time_mattina.astimezone(pytz.utc).timetz()
-    
+     
     # Impostiamo il job per inviare il promemoria ogni giorno alle 10:00
-    job_queue.run_daily(invia_promemoria_mattina, utc_time_mattina)
+    target_time_mattina = time(10, 0)
+    job_queue.run_daily(invia_promemoria_mattina, target_time_mattina, timezone = timezone)
 
-    # Impostazione per l'ultimo promemoria  (14:00)
-    target_time_last = timezone.localize(datetime.combine(datetime.now(), time(14, 0)))
-    utc_time_last = target_time_last.astimezone(pytz.utc).timetz()
-    
     # Impostiamo il job per inviare il promemoria ogni giorno alle 14:00
-    job_queue.run_daily(invia_promemoria_last, utc_time_last)
+    target_time_last = time(14, 0)
+    job_queue.run_daily(invia_promemoria_last, target_time_last, timezone=timezone)
     
-    target_time = timezone.localize(datetime.combine(datetime.now(), time(19, 30)))
-    # Converti in UTC
-    utc_time = target_time.astimezone(pytz.utc).timetz()
-    # Programma il job per le 00:00 ogni giorno
-    job_queue.run_daily(inizia_quiz_automatico, utc_time)
-    job_queue.run_daily(reset_quiz_completati, utc_time)
+    
+    # Impostazione per il quiz automatico (00:00)
+    target_time_quiz = time(0, 0)
+    job_queue.run_daily(inizia_quiz_automatico, target_time_quiz, timezone=timezone)
+    
+    job_queue.run_daily(reset_quiz_completati, target_time_quiz, timezone=timezone)
 
 def is_authorized(chat_id):
     return chat_id in saved_chat_ids  # oppure usa una lista dedicata, ad es. allowed_chat_ids

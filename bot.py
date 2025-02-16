@@ -443,22 +443,7 @@ def get_medie(chat_id, tipo):
     if tipo == "giornaliero":
         cells = ["Z3", "Z6", "Z9"]
     elif tipo == "settimanale":
-        cells = ["Z12", "Z15", "Z18"]
-    else:
-        return None
-    
-    return tuple(get_values(worksheet, cells))
-
-def get_medie(chat_id, tipo):
-    if chat_id not in sheet_map:
-        return None
-    
-    worksheet = sh.get_worksheet(sheet_map[chat_id])
-    
-    if tipo == "giornaliero":
-        cells = ["Z3", "Z6", "Z9"]
-    elif tipo == "settimanale":
-        cells = ["Z12", "Z15", "Z18"]
+        cells = ["Z23", "Z26", "Z29"]
     else:
         return None
     

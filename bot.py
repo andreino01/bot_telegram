@@ -572,7 +572,7 @@ def setup_job_queue(application: Application):
 
     # Impostazione per l'ultimo promemoria  (14:00)
     target_time_last = timezone.localize(datetime.combine(datetime.now(), time(14, 0)))
-    utc_time_mattina = target_time_last.astimezone(pytz.utc).timetz()
+    utc_time_last = target_time_last.astimezone(pytz.utc).timetz()
     
     # Impostiamo il job per inviare il promemoria ogni giorno alle 14:00
     job_queue.run_daily(invia_promemoria_last, utc_time_last)

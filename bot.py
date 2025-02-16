@@ -38,15 +38,15 @@ gc = gspread.authorize(creds)
 sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 
 # Lista degli utenti registrati
-saved_chat_ids2 = [637735039]
-saved_chat_ids = [1832764914, 5201631829, 700212414, 637735039]
+saved_chat_ids = [637735039]
+saved_chat_ids2 = [1832764914, 5201631829, 700212414, 637735039]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
-    #637735039: 3,
+    637735039: 3,
     1832764914: 1,  # Foglio 2
     5201631829: 2,  # Foglio 3
-    700212414: 3    # Foglio 4
+    #700212414: 3    # Foglio 4
 }
 
 # Domande del quiz
@@ -142,10 +142,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("🎉 Quiz completato! Risposte salvate.")
         
-        obiettivi = get_obiettivi(chat_id, tipo="settimanale")
-        calcolo_weekgoal(chat_id)
         oggi = datetime.now() - timedelta(hours=18)
         if oggi.weekday() == 6:
+            obiettivi = get_obiettivi(chat_id, tipo="settimanale")
+            calcolo_weekgoal(chat_id)
             if obiettivi is None:
                 await update.message.reply_text("⚠️ Errore nel recuperare gli obiettivi.")
                 obj = f"⚠️ C'è stato un errore con gli obiettivi settimanali! Contattare il grande capo"
@@ -379,7 +379,7 @@ def get_grafico_url(chat_id, tipo):
             "giornaliero": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=36108840&format=image",
             "settimanale": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1306110414&format=image"
         },
-        700212414: {
+        637735039: {
             "giornaliero": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=937722899&format=image",
             "settimanale": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1136748667&format=image"
         }
@@ -426,6 +426,85 @@ def today_zero(chat_id):
     status_cell = int(worksheet.cell(9, 24).value)  # X9 = riga 9, colonna 24
     return status_cell
 
+def get_values(worksheet, cell_ranges):
+    try:
+        values = worksheet.batch_get(cell_ranges)
+        return [v[0] if v else None for v in values]  # Restituisce una lista di valori (o None se la cella è vuota)
+    except Exception as e:
+        print(f"Errore nel recupero dei dati: {e}")
+        return None
+	    
+def get_medie(chat_id, tipo):
+    if chat_id not in sheet_map:
+        return None
+    
+    worksheet = sh.get_worksheet(sheet_map[chat_id])
+    
+    if tipo == "giornaliero":
+        cells = ["Z3", "Z6", "Z9"]
+    elif tipo == "settimanale":
+        cells = ["Z12", "Z15", "Z18"]
+    else:
+        return None
+    
+    return tuple(get_values(worksheet, cells))
+
+def get_medie(chat_id, tipo):
+    if chat_id not in sheet_map:
+        return None
+    
+    worksheet = sh.get_worksheet(sheet_map[chat_id])
+    
+    if tipo == "giornaliero":
+        cells = ["Z3", "Z6", "Z9"]
+    elif tipo == "settimanale":
+        cells = ["Z12", "Z15", "Z18"]
+    else:
+        return None
+    
+    return tuple(get_values(worksheet, cells))
+
+
+def get_obiettivi(chat_id, tipo):
+    if chat_id not in sheet_map:
+        return None
+    
+    worksheet = sh.get_worksheet(sheet_map[chat_id])
+    
+    if tipo == "giornaliero":
+        cells = ["Z13", "Z16", "Z19", "X12"]
+    elif tipo == "settimanale":
+        cells = ["X16", "X19", "X22", "X25"]
+    else:
+        return None
+    
+    values = get_values(worksheet, cells)
+    return tuple(map(int, values)) if values else None
+
+
+def calcolo_weekgoal(chat_id):
+    if chat_id not in sheet_map:
+        return None
+    
+    worksheet = sh.get_worksheet(sheet_map[chat_id])
+    cells = ["Z33", "Z36", "Z39"]
+    values = get_values(worksheet, cells)
+    
+    if values:
+        updates = {"X16": values[0], "X19": values[1], "X22": values[2]}
+        worksheet.batch_update([[key, val] for key, val in updates.items() if val is not None])
+    
+
+def get_settimana_corrente(chat_id):
+    if chat_id not in sheet_map:
+        return None
+    
+    worksheet = sh.get_worksheet(sheet_map[chat_id])
+    cells = ["X29", "X32", "X35"]
+    
+    values = get_values(worksheet, cells)
+    return tuple(map(int, values)) if values else None
+'''
 def get_medie(chat_id, tipo):
     
     if chat_id not in sheet_map:
@@ -534,7 +613,7 @@ def get_settimana_corrente(chat_id):
     except Exception as e:
         print(f"Errore nel recuperare i dati di questa settimana per {chat_id}: {e}")
         return None
-
+'''
 def setup_job_queue(application: Application):
     """
     Configura il job schedulato per mezzanotte

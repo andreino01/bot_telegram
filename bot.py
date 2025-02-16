@@ -36,7 +36,7 @@ gc = gspread.authorize(creds)
 sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 
 # Lista degli utenti registrati
-saved_chat_id2 = [637735039]
+saved_chat_ids = [637735039]
 saved_chat_ids2 = [1832764914, 5201631829, 700212414]
 
 # Mappa degli ID e i fogli corrispondenti
@@ -570,8 +570,8 @@ def setup_job_queue(application: Application):
     job_queue.run_daily(invia_promemoria_last, time_last)
     
     
-    # Impostazione per il quiz automatico (20:38)
-    time_quiz = time(0, 0, tzinfo=timezone)
+    # Impostazione per il quiz automatico (00:00)
+    time_quiz = time(20, 45, tzinfo=timezone)
     job_queue.run_daily(inizia_quiz_automatico, time_quiz)
     
     job_queue.run_daily(reset_quiz_completati, time_quiz)

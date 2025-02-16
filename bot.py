@@ -570,7 +570,7 @@ app.add_handler(CallbackQueryHandler(handle_button_click))
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Imposta l'URL del webhook (deve essere HTTPS e raggiungibile)
-    webhook_url = f"https://dailycheck-production.up.railway.app/{TOKEN}"
+    webhook_url = f"https://bottelegram-no-fumo.up.railway.app/{TOKEN}"
     await application.bot.setWebhook(webhook_url)
     # Avvia il bot nel contesto async (non avvia un server separato!)
     async with application:

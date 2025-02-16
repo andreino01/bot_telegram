@@ -82,7 +82,7 @@ async def send_question(context: ContextTypes.DEFAULT_TYPE, chat_id, question_nu
     else:
         await context.bot.send_message(chat_id=chat_id, text="🎉 Quiz completato! Ci rivediamo domani.")
         # Aggiungi l'utente al dizionario dei quiz completati
-        quiz_completati[chat_id] = True
+        quiz_completati[chat_id] = False #True
         del user_states[chat_id]  # Rimuove lo stato dell'utente una volta completato il quiz
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -158,7 +158,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     await context.bot.send_message(chat_id=chat_id, text=obj, parse_mode="Markdown")
 
         # Aggiungi l'utente al dizionario dei quiz completati
-        quiz_completati[chat_id] = True
+        quiz_completati[chat_id] = False #True
 
         obiettivi = get_obiettivi(chat_id, tipo="giornaliero")
         if obiettivi is None:
@@ -577,7 +577,7 @@ def setup_job_queue(application: Application):
     # Impostiamo il job per inviare il promemoria ogni giorno alle 14:00
     job_queue.run_daily(invia_promemoria_last, utc_time_last)
     
-    target_time = timezone.localize(datetime.combine(datetime.now(), time(19, 0)))
+    target_time = timezone.localize(datetime.combine(datetime.now(), time(19, 30)))
     # Converti in UTC
     utc_time = target_time.astimezone(pytz.utc).timetz()
     # Programma il job per le 00:00 ogni giorno

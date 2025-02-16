@@ -9,11 +9,9 @@ import asyncio
 from contextlib import asynccontextmanager
 from http import HTTPStatus
 import threading
-from fastapi import FastAPI, Request, Response
 
 # Telegram bot token
 TOKEN = os.environ.get('TOKEN')
-PORT = int(os.getenv("PORT", 8080))
 
 application = Application.builder().token(TOKEN).build()
 
@@ -38,15 +36,15 @@ gc = gspread.authorize(creds)
 sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 
 # Lista degli utenti registrati
-saved_chat_ids2 = [637735039]
-saved_chat_ids = [1832764914, 5201631829, 700212414]
+saved_chat_id2 = [637735039]
+saved_chat_ids2 = [1832764914, 5201631829, 700212414]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
-    #637735039: 3,
+    637735039: 3,
     1832764914: 1,  # Foglio 2
     5201631829: 2,  # Foglio 3
-    700212414: 3    # Foglio 4
+    #700212414: 3    # Foglio 4
 }
 
 # Domande del quiz
@@ -572,7 +570,7 @@ def setup_job_queue(application: Application):
     job_queue.run_daily(invia_promemoria_last, time_last)
     
     
-    # Impostazione per il quiz automatico (00:00)
+    # Impostazione per il quiz automatico (20:38)
     time_quiz = time(0, 0, tzinfo=timezone)
     job_queue.run_daily(inizia_quiz_automatico, time_quiz)
     
@@ -586,30 +584,7 @@ application.add_handler(CommandHandler("quiz", quiz))
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 application.add_handler(CallbackQueryHandler(handle_button_click))
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-	# Imposta l'URL del webhook (deve essere HTTPS e raggiungibile)
-    webhook_url = f"https://bottelegram-no-fumo.up.railway.app/{TOKEN}"
-    await application.bot.setWebhook(webhook_url)
-    # Avvia il bot nel contesto async (non avvia un server separato!)
-    async with application:
-        setup_job_queue(application)
-        yield
-        # Al termine, l'application si fermerà automaticamente
-
-# Crea l'app FastAPI usando il lifespan
-app = FastAPI(lifespan=lifespan)
-
-# Endpoint per ricevere gli update dal webhook
-@app.post("/{token}")
-async def process_update(request: Request, token: str):
-    if token != TOKEN:
-        return Response(status_code=HTTPStatus.FORBIDDEN)
-    data = await request.json()
-    update = Update.de_json(data, application.bot)
-    await application.process_update(update)
-    return Response(status_code=HTTPStatus.OK)
-
-@app.get("/")
-async def root():
-    return {"message": "Bot attivo!"}
+if __name__ == "__main__":
+    print("Bot avviato in modalità polling...")
+    setup_job_queue(application)
+    application.run_polling()

@@ -357,6 +357,25 @@ async def invia_promemoria_mattina(context: ContextTypes.DEFAULT_TYPE):
             except Exception as e:
                 print(f"Errore nell'inviare il messaggio al chat_id {chat_id}: {e}")
 
+async def invia_promemoria_last(context: ContextTypes.DEFAULT_TYPE):
+    #Funzione per inviare il promemoria la mattina agli utenti che non hanno completato il quiz.
+    
+    for chat_id in list(users_mancanti.keys()):
+        if users_mancanti[chat_id] and (chat_id not in quiz_completati or not quiz_completati[chat_id]):
+            try:
+                # Crea un bottone inline per il comando /quiz
+                button = [("📝 Inizia il quiz", "/quiz")]
+                reply_markup = create_keyboard(button)
+                # Invia il messaggio con il pulsante inline
+                await context.bot.send_message(
+                    chat_id=chat_id,
+                    text="🥺 Hey...\nNon hai ancora compilato il quiz, vuoi farlo ora?",
+                    reply_markup=reply_markup
+                )
+            except Exception as e:
+                print(f"Errore nell'inviare il messaggio al chat_id {chat_id}: {e}")
+
+
 async def reset_quiz_completati(context: ContextTypes.DEFAULT_TYPE):
     """
     Resetta il dizionario dei quiz completati ogni giorno a mezzanotte.
@@ -544,14 +563,21 @@ def setup_job_queue(application: Application):
     # Imposta il fuso orario (es. Europe/Rome per l'Italia)
     timezone = pytz.timezone("Europe/Rome")
     
-    # Impostazione per il promemoria della mattina (10:00 AM)
+    # Impostazione per il promemoria della mattina (10:00)
     target_time_mattina = timezone.localize(datetime.combine(datetime.now(), time(10, 0)))
     utc_time_mattina = target_time_mattina.astimezone(pytz.utc).timetz()
     
     # Impostiamo il job per inviare il promemoria ogni giorno alle 10:00
     job_queue.run_daily(invia_promemoria_mattina, utc_time_mattina)
+
+    # Impostazione per l'ultimo promemoria  (14:00)
+    target_time_last = timezone.localize(datetime.combine(datetime.now(), time(14, 0)))
+    utc_time_mattina = target_time_last.astimezone(pytz.utc).timetz()
     
-    target_time = timezone.localize(datetime.combine(datetime.now(), time(0, 0)))
+    # Impostiamo il job per inviare il promemoria ogni giorno alle 14:00
+    job_queue.run_daily(invia_promemoria_last, utc_time_last)
+    
+    target_time = timezone.localize(datetime.combine(datetime.now(), time(19, 0)))
     # Converti in UTC
     utc_time = target_time.astimezone(pytz.utc).timetz()
     # Programma il job per le 00:00 ogni giorno

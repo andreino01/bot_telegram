@@ -571,7 +571,7 @@ def setup_job_queue(application: Application):
     
     
     # Impostazione per il quiz automatico (00:00)
-    time_quiz = time(20, 45, tzinfo=timezone)
+    time_quiz = time(20, 44, tzinfo=timezone)
     job_queue.run_daily(inizia_quiz_automatico, time_quiz)
     
     job_queue.run_daily(reset_quiz_completati, time_quiz)

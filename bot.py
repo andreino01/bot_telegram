@@ -426,70 +426,6 @@ def today_zero(chat_id):
     status_cell = int(worksheet.cell(9, 24).value)  # X9 = riga 9, colonna 24
     return status_cell
 
-def get_values(worksheet, cell_ranges):
-    try:
-        values = worksheet.batch_get(cell_ranges)
-        return [v[0] if v else None for v in values]  # Restituisce una lista di valori (o None se la cella è vuota)
-    except Exception as e:
-        print(f"Errore nel recupero dei dati: {e}")
-        return None
-	    
-def get_medie(chat_id, tipo):
-    if chat_id not in sheet_map:
-        return None
-    
-    worksheet = sh.get_worksheet(sheet_map[chat_id])
-    
-    if tipo == "giornaliero":
-        cells = ["Z3", "Z6", "Z9"]
-    elif tipo == "settimanale":
-        cells = ["Z23", "Z26", "Z29"]
-    else:
-        return None
-    
-    return tuple(get_values(worksheet, cells))
-
-
-def get_obiettivi(chat_id, tipo):
-    if chat_id not in sheet_map:
-        return None
-    
-    worksheet = sh.get_worksheet(sheet_map[chat_id])
-    
-    if tipo == "giornaliero":
-        cells = ["Z13", "Z16", "Z19", "X12"]
-    elif tipo == "settimanale":
-        cells = ["X16", "X19", "X22", "X25"]
-    else:
-        return None
-    
-    values = get_values(worksheet, cells)
-    return tuple(map(int, values)) if values else None
-
-
-def calcolo_weekgoal(chat_id):
-    if chat_id not in sheet_map:
-        return None
-    
-    worksheet = sh.get_worksheet(sheet_map[chat_id])
-    cells = ["Z33", "Z36", "Z39"]
-    values = get_values(worksheet, cells)
-    
-    if values:
-        updates = {"X16": values[0], "X19": values[1], "X22": values[2]}
-        worksheet.batch_update([[key, val] for key, val in updates.items() if val is not None])
-    
-
-def get_settimana_corrente(chat_id):
-    if chat_id not in sheet_map:
-        return None
-    
-    worksheet = sh.get_worksheet(sheet_map[chat_id])
-    cells = ["X29", "X32", "X35"]
-    
-    values = get_values(worksheet, cells)
-    return tuple(map(int, values)) if values else None
-'''
 def get_medie(chat_id, tipo):
     
     if chat_id not in sheet_map:
@@ -598,7 +534,7 @@ def get_settimana_corrente(chat_id):
     except Exception as e:
         print(f"Errore nel recuperare i dati di questa settimana per {chat_id}: {e}")
         return None
-'''
+
 def setup_job_queue(application: Application):
     """
     Configura il job schedulato per mezzanotte

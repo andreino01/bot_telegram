@@ -582,7 +582,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # Endpoint per ricevere gli update dal webhook
-@app.post("/webhook")
+@app.post("/{TOKEN}")
 async def process_update(request: Request, token: str):
     if token != TOKEN:
         return Response(status_code=HTTPStatus.FORBIDDEN)

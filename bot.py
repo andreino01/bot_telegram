@@ -564,19 +564,19 @@ def setup_job_queue(application: Application):
     timezone = pytz.timezone("Europe/Rome")
      
     # Impostiamo il job per inviare il promemoria ogni giorno alle 10:00
-    target_time_mattina = time(10, 0)
-    job_queue.run_daily(invia_promemoria_mattina, target_time_mattina, timezone = timezone)
+    time_mattina = time(10, 0, tzinfo=timezone)
+    job_queue.run_daily(invia_promemoria_mattina, time_mattina)
 
     # Impostiamo il job per inviare il promemoria ogni giorno alle 14:00
-    target_time_last = time(14, 0)
-    job_queue.run_daily(invia_promemoria_last, target_time_last, timezone=timezone)
+    time_last = time(14, 0, tzinfo=timezone)
+    job_queue.run_daily(invia_promemoria_last, time_last)
     
     
     # Impostazione per il quiz automatico (00:00)
-    target_time_quiz = time(0, 0)
-    job_queue.run_daily(inizia_quiz_automatico, target_time_quiz, timezone=timezone)
+    time_quiz = time(0, 0, tzinfo=timezone)
+    job_queue.run_daily(inizia_quiz_automatico, time_quiz)
     
-    job_queue.run_daily(reset_quiz_completati, target_time_quiz, timezone=timezone)
+    job_queue.run_daily(reset_quiz_completati, time_quiz)
 
 def is_authorized(chat_id):
     return chat_id in saved_chat_ids  # oppure usa una lista dedicata, ad es. allowed_chat_ids

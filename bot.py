@@ -562,10 +562,10 @@ def setup_job_queue(application: Application):
 def is_authorized(chat_id):
     return chat_id in saved_chat_ids  # oppure usa una lista dedicata, ad es. allowed_chat_ids
 
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("quiz", quiz))
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-app.add_handler(CallbackQueryHandler(handle_button_click))
+application.add_handler(CommandHandler("start", start))
+application.add_handler(CommandHandler("quiz", quiz))
+application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+application.add_handler(CallbackQueryHandler(handle_button_click))
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -575,6 +575,7 @@ async def lifespan(app: FastAPI):
     # Avvia il bot nel contesto async (non avvia un server separato!)
     async with application:
         schedule_daily_message(application)
+	setup_job_queue(application)
         yield
         # Al termine, l'application si fermerà automaticamente
 
@@ -582,7 +583,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # Endpoint per ricevere gli update dal webhook
-@app.post("/{token}")
+@app.post("/webhook/{token}")
 async def process_update(request: Request, token: str):
     if token != TOKEN:
         return Response(status_code=HTTPStatus.FORBIDDEN)

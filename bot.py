@@ -214,15 +214,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text("⚠️ Impossibile verificare i dati di oggi")    
 
-        # Crea il bottone per visualizzare il grafico
-        keyboard = [
-            [InlineKeyboardButton("📈 Mostra il grafico", callback_data='/grafico')],
-            [InlineKeyboardButton("💸 Soldi spesi in totale", callback_data='/soldi_spesi')],
-            [InlineKeyboardButton("📊 Medie", callback_data='/medie')],
-            [InlineKeyboardButton("🎯 Obiettivi", callback_data='/obiettivi')],
-            [InlineKeyboardButton("🗓️ Questa settimana", callback_data='/settimana_corrente')]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
+        buttons = [
+            ("📈 Mostra il grafico", "/grafico"),
+            ("💸 Soldi spesi in totale", "/soldi_spesi"),
+            ("📊 Medie", "/medie"),
+            ("🎯 Obiettivi", "/obiettivi"),
+            ("🗓️ Questa settimana", "/settimana_corrente")]
+        
+        reply_markup = create_keyboard(buttons)
         
         # Invia il bottone per visualizzare il grafico, i soldi spesi, le medie o gli obiettivi
         await update.message.reply_text(
@@ -267,11 +266,10 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
         else:
             await context.bot.send_message(chat_id=chat_id, text="⚠️ Non ho trovato le tue medie.")
     elif query.data == '/obiettivi':  # Aggiunto nuovo tasto per gli obiettivi
-        keyboard = [
-            [InlineKeyboardButton("🎯 Giornaliero", callback_data='/obiettivi_gior')],
-            [InlineKeyboardButton("🎯 Settimanale", callback_data='/obiettivi_sett')]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
+        buttons = [
+            ("🎯 Giornaliero", "/obiettivi_gior"),
+            ("🎯 Settimanale", "/obiettivi_sett")]
+        reply_markup = create_keyboard(buttons)
         await context.bot.send_message(chat_id=chat_id, text="Quali obiettivi vuoi vedere?", reply_markup=reply_markup)
 
     elif query.data == '/obiettivi_gior':
@@ -329,10 +327,8 @@ async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
             continue  # Salta l'utente se ha già completato il quiz
         try:
             # Crea un bottone inline per il comando /quiz
-            keyboard = [
-                [InlineKeyboardButton("Inizia il quiz", callback_data='/quiz')]
-            ]
-            reply_markup = InlineKeyboardMarkup(keyboard)
+            button = [("📝 Inizia il quiz", "/quiz")]
+            reply_markup = create_keyboard(button)
             # Invia il messaggio con il pulsante inline
             await context.bot.send_message(
                 chat_id=chat_id,
@@ -350,10 +346,8 @@ async def invia_promemoria_mattina(context: ContextTypes.DEFAULT_TYPE):
         if users_mancanti[chat_id] and (chat_id not in quiz_completati or not quiz_completati[chat_id]):
             try:
                 # Crea un bottone inline per il comando /quiz
-                keyboard = [
-                    [InlineKeyboardButton("Inizia il quiz", callback_data='/quiz')]
-                ]
-                reply_markup = InlineKeyboardMarkup(keyboard)
+                button = [("📝 Inizia il quiz", "/quiz")]
+                reply_markup = create_keyboard(button)
                 # Invia il messaggio con il pulsante inline
                 await context.bot.send_message(
                     chat_id=chat_id,
@@ -370,6 +364,11 @@ async def reset_quiz_completati(context: ContextTypes.DEFAULT_TYPE):
     global quiz_completati
     quiz_completati = {}
 
+def create_keyboard(buttons):
+    #Crea una tastiera inline con i pulsanti specificati.
+    keyboard = [[InlineKeyboardButton(text, callback_data=data)] for text, data in buttons]
+    return InlineKeyboardMarkup(keyboard)
+    
 def get_grafico_url(chat_id, tipo):
     grafici = {
         1832764914: {

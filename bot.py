@@ -574,9 +574,9 @@ async def lifespan(app: FastAPI):
     await application.bot.setWebhook(webhook_url)
     # Avvia il bot nel contesto async (non avvia un server separato!)
     async with application:
-		schedule_daily_message(application)
-		setup_job_queue(application)
-		yield
+        schedule_daily_message(application)
+        setup_job_queue(application)
+        yield
         # Al termine, l'application si fermerà automaticamente
 
 # Crea l'app FastAPI usando il lifespan

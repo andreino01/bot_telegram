@@ -6,9 +6,16 @@ import pytz
 import os
 import gspread
 import asyncio
+from contextlib import asynccontextmanager
+from http import HTTPStatus
+import threading
+from fastapi import FastAPI, Request, Response
 
-TOKEN = os.getenv('TOKEN')
-bot = Bot(token=TOKEN)
+# Telegram bot token
+TOKEN = os.environ.get('TOKEN')
+PORT = int(os.getenv("PORT", 8080))
+
+application = Application.builder().token(TOKEN).build()
 
 # Google Sheets setup
 GOOGLE_CREDS = {
@@ -31,15 +38,15 @@ gc = gspread.authorize(creds)
 sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 
 # Lista degli utenti registrati
-saved_chat_ids2 = [637735039]
-saved_chat_ids = [1832764914, 5201631829, 700212414]
+saved_chat_ids = [637735039]
+saved_chat_ids2 = [1832764914, 5201631829, 700212414]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
-    #637735039: 3,
+    637735039: 3,
     1832764914: 1,  # Foglio 2
     5201631829: 2,  # Foglio 3
-    700212414: 3    # Foglio 4
+    #700212414: 3    # Foglio 4
 }
 
 # Domande del quiz
@@ -555,17 +562,35 @@ def setup_job_queue(application: Application):
 def is_authorized(chat_id):
     return chat_id in saved_chat_ids  # oppure usa una lista dedicata, ad es. allowed_chat_ids
 
+app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("quiz", quiz))
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+app.add_handler(CallbackQueryHandler(handle_button_click))
 
-if __name__ == '__main__':
-    app = Application.builder().token(TOKEN).concurrent_updates(4).build()
-    # Handlers
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("quiz", quiz))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    app.add_handler(CallbackQueryHandler(handle_button_click))
-		
-  
-    # Configura il job schedulato
-    setup_job_queue(app)
-    # Avvia il bot in long polling
-    app.run_polling()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Imposta l'URL del webhook (deve essere HTTPS e raggiungibile)
+    webhook_url = f"https://dailycheck-production.up.railway.app/{TOKEN}"
+    await application.bot.setWebhook(webhook_url)
+    # Avvia il bot nel contesto async (non avvia un server separato!)
+    async with application:
+        schedule_daily_message(application)
+        yield
+        # Al termine, l'application si fermerà automaticamente
+
+# Crea l'app FastAPI usando il lifespan
+app = FastAPI(lifespan=lifespan)
+
+# Endpoint per ricevere gli update dal webhook
+@app.post("/{token}")
+async def process_update(request: Request, token: str):
+    if token != TOKEN:
+        return Response(status_code=HTTPStatus.FORBIDDEN)
+    data = await request.json()
+    update = Update.de_json(data, application.bot)
+    await application.process_update(update)
+    return Response(status_code=HTTPStatus.OK)
+
+@app.get("/")
+async def root():
+    return {"message": "Bot attivo!"}

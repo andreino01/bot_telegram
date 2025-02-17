@@ -457,7 +457,7 @@ def get_medie(chat_id, tipo):
     if tipo == "giornaliero":
         ranges = ['Z3', 'Z6', 'Z9']  # Celle per medie giornaliere
     elif tipo == "settimanale":
-        ranges = ['X12', 'X15', 'X18']  # Celle per medie settimanali
+        ranges = ['Z23', 'Z26', 'Z29']  # Celle per medie settimanali
     else:
         return None
 

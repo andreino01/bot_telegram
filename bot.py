@@ -487,7 +487,7 @@ def get_medie(chat_id, tipo):
     except Exception as e:
         print(f"Errore nel convertire i valori per {chat_id}: {e}")
         return None
-   '''
+    '''
     if tipo == "giornaliero":
         try:
             # Recupera i valori delle tre medie dalle celle Z2, Z3, Z4 (colonna 26)
@@ -511,7 +511,7 @@ def get_medie(chat_id, tipo):
         except Exception as e:
             print(f"Errore nel recuperare le medie settimanali per {chat_id}: {e}")
             return None
-'''     
+    '''     
 def get_obiettivi(chat_id,tipo):
     
     if chat_id not in sheet_map:
@@ -586,7 +586,7 @@ def get_obiettivi(chat_id,tipo):
         except Exception as e:
             print(f"Errore nel recuperare gli obiettivi per {chat_id}: {e}")
             return None
-'''
+    '''
 def calcolo_weekgoal(chat_id):
     if chat_id not in sheet_map:
         return None
@@ -660,7 +660,7 @@ def get_settimana_corrente(chat_id):
     except Exception as e:
         print(f"Errore nel recuperare i dati di questa settimana per {chat_id}: {e}")
         return None
-'''
+    '''
 def setup_job_queue(application: Application):
     """
     Configura il job schedulato per mezzanotte

@@ -38,13 +38,13 @@ SPREADSHEET_ID = os.environ.get('SHEET_ID')
 sh = gc.open_by_key(SPREADSHEET_ID)
 
 # Lista degli utenti registrati
-saved_chat_ids = [637735039]
-saved_chat_ids2 = [1832764914, 5201631829, 700212414]
+saved_chat_ids2 = [637735039]
+saved_chat_ids = [1832764914, 5201631829, 700212414]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
-    637735039: 1,
-    #1832764914: 1,  # Foglio 2
+    #637735039: 1,
+    1832764914: 1,  # Foglio 2
     5201631829: 2,  # Foglio 3
     700212414: 3    # Foglio 4
 }
@@ -390,7 +390,7 @@ def create_keyboard(buttons):
     
 def get_grafico_url(chat_id, tipo):
     grafici = {
-        637735039: {
+        1832764914: {
             "giornaliero": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1293144718&format=image",
             "settimanale": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1154554874&format=image"
         },

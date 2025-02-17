@@ -698,4 +698,4 @@ application.add_handler(CallbackQueryHandler(handle_button_click))
 if __name__ == "__main__":
     print("Bot avviato in modalità polling...")
     setup_job_queue(application)
-    application.run_polling(poll_interval=2)
+    application.run_polling(poll_interval=5)

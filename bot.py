@@ -34,7 +34,8 @@ GOOGLE_CREDS = {
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_dict(GOOGLE_CREDS, scope)
 gc = gspread.authorize(creds)
-sh = gc.open_by_key(os.environ.get('SHEET_ID'))
+SPREADSHEET_ID = os.environ.get('SHEET_ID')
+sh = gc.open_by_key(SPREADSHEET_ID)
 
 # Lista degli utenti registrati
 saved_chat_ids = [637735039]

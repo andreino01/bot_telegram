@@ -36,13 +36,13 @@ gc = gspread.authorize(creds)
 sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 
 # Lista degli utenti registrati
-saved_chat_ids2 = [637735039]
-saved_chat_ids = [1832764914, 5201631829, 700212414]
+saved_chat_ids = [637735039]
+saved_chat_ids2 = [1832764914, 5201631829, 700212414]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
-    #637735039: 3,
-    1832764914: 1,  # Foglio 2
+    637735039: 1,
+    #1832764914: 1,  # Foglio 2
     5201631829: 2,  # Foglio 3
     700212414: 3    # Foglio 4
 }
@@ -388,7 +388,7 @@ def create_keyboard(buttons):
     
 def get_grafico_url(chat_id, tipo):
     grafici = {
-        1832764914: {
+        637735039: {
             "giornaliero": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1293144718&format=image",
             "settimanale": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1154554874&format=image"
         },
@@ -450,6 +450,44 @@ def get_medie(chat_id, tipo):
 
     # Ottieni il foglio corrispondente
     worksheet = sh.get_worksheet(sheet_map[chat_id])
+    
+    # Definisci i range di celle da leggere in base al tipo
+    if tipo == "giornaliero":
+        ranges = ['Z3', 'Z6', 'Z9']  # Celle per medie giornaliere
+    elif tipo == "settimanale":
+        ranges = ['X12', 'X15', 'X18']  # Celle per medie settimanali
+    else:
+        return None
+
+    # Costruisci i range completi con il nome del foglio
+    sheet_name = worksheet.title
+    full_ranges = [f"{sheet_name}!{r}" for r in ranges]
+
+    # Esegui la chiamata batchGet per recuperare i dati
+    service = build('sheets', 'v4', credentials=creds)
+    result = service.spreadsheets().values().batchGet(
+        spreadsheetId=SPREADSHEET_ID,
+        ranges=full_ranges
+    ).execute()
+
+    # Estrai i valori dai risultati
+    value_ranges = result.get('valueRanges', [])
+    if len(value_ranges) != len(ranges):
+        print(f"Errore nel recuperare i dati per {chat_id}: numero di range non corrispondente")
+        return None
+
+    try:
+        # Converti i valori in interi e crea una lista
+        medie = [
+            (value_ranges[0]['values'][0][0]),  # media_1
+            (value_ranges[1]['values'][0][0]),  # media_2
+            (value_ranges[2]['values'][0][0])  # media_3
+        ]
+        return medie
+    except Exception as e:
+        print(f"Errore nel convertire i valori per {chat_id}: {e}")
+        return None
+   '''
     if tipo == "giornaliero":
         try:
             # Recupera i valori delle tre medie dalle celle Z2, Z3, Z4 (colonna 26)
@@ -473,7 +511,7 @@ def get_medie(chat_id, tipo):
         except Exception as e:
             print(f"Errore nel recuperare le medie settimanali per {chat_id}: {e}")
             return None
-        
+'''     
 def get_obiettivi(chat_id,tipo):
     
     if chat_id not in sheet_map:
@@ -481,6 +519,45 @@ def get_obiettivi(chat_id,tipo):
 
     # Ottieni il foglio corrispondente
     worksheet = sh.get_worksheet(sheet_map[chat_id])
+    
+    # Definisci i range di celle da leggere in base al tipo
+    if tipo == "giornaliero":
+        ranges = ['Z13', 'Z16', 'Z19', 'X12']  # Celle per obiettivi giornalieri
+    elif tipo == "settimanale":
+        ranges = ['X16', 'X19', 'X22', 'X25']  # Celle per obiettivi settimanali
+    else:
+        return None
+
+    # Costruisci i range completi con il nome del foglio
+    sheet_name = worksheet.title
+    full_ranges = [f"{sheet_name}!{r}" for r in ranges]
+
+    # Esegui la chiamata batchGet per recuperare i dati
+    service = build('sheets', 'v4', credentials=creds)
+    result = service.spreadsheets().values().batchGet(
+        spreadsheetId=SPREADSHEET_ID,
+        ranges=full_ranges
+    ).execute()
+
+    # Estrai i valori dai risultati
+    value_ranges = result.get('valueRanges', [])
+    if len(value_ranges) != len(ranges):
+        print(f"Errore nel recuperare i dati per {chat_id}: numero di range non corrispondente")
+        return None
+
+    try:
+        # Converti i valori in interi e crea una lista
+        obiettivi = [
+            int(value_ranges[0]['values'][0][0]),  # obiettivo_1
+            int(value_ranges[1]['values'][0][0]),  # obiettivo_2
+            int(value_ranges[2]['values'][0][0]),  # obiettivo_3
+            int(value_ranges[3]['values'][0][0])   # goal_reached
+        ]
+        return obiettivi
+    except Exception as e:
+        print(f"Errore nel convertire i valori per {chat_id}: {e}")
+        return None
+    '''
     if tipo == "giornaliero":
         try:
             # Recupera i valori dei tre obiettivi dalle celle Z13, Z16, Z19 (colonna 26)
@@ -509,7 +586,7 @@ def get_obiettivi(chat_id,tipo):
         except Exception as e:
             print(f"Errore nel recuperare gli obiettivi per {chat_id}: {e}")
             return None
-
+'''
 def calcolo_weekgoal(chat_id):
     if chat_id not in sheet_map:
         return None
@@ -540,6 +617,38 @@ def get_settimana_corrente(chat_id):
     # Ottieni il foglio corrispondente
     worksheet = sh.get_worksheet(sheet_map[chat_id])
 
+    # Definisci i range di celle da leggere in base al tipo
+    ranges = ['X29', 'X32', 'X35']  # Celle per settimana corrente
+
+    # Costruisci i range completi con il nome del foglio
+    sheet_name = worksheet.title
+    full_ranges = [f"{sheet_name}!{r}" for r in ranges]
+
+    # Esegui la chiamata batchGet per recuperare i dati
+    service = build('sheets', 'v4', credentials=creds)
+    result = service.spreadsheets().values().batchGet(
+        spreadsheetId=SPREADSHEET_ID,
+        ranges=full_ranges
+    ).execute()
+
+    # Estrai i valori dai risultati
+    value_ranges = result.get('valueRanges', [])
+    if len(value_ranges) != len(ranges):
+        print(f"Errore nel recuperare i dati per {chat_id}: numero di range non corrispondente")
+        return None
+
+    try:
+        # Converti i valori in interi e crea una lista
+        settimana = [
+            int(value_ranges[0]['values'][0][0]),  # settimana_1
+            int(value_ranges[1]['values'][0][0]),  # settimana_2
+            int(value_ranges[2]['values'][0][0]),  # settimana_3
+        ]
+        return settimana
+    except Exception as e:
+        print(f"Errore nel convertire i valori per {chat_id}: {e}")
+        return None
+    '''
     try:
         # Recupera i valori dei tre obiettivi dalle celle X29, X32, X35 (colonna 24)
         obiettivo_1 = int(worksheet.cell(29, 24).value)  # X29
@@ -551,7 +660,7 @@ def get_settimana_corrente(chat_id):
     except Exception as e:
         print(f"Errore nel recuperare i dati di questa settimana per {chat_id}: {e}")
         return None
-
+'''
 def setup_job_queue(application: Application):
     """
     Configura il job schedulato per mezzanotte

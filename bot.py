@@ -671,21 +671,27 @@ def setup_job_queue(application: Application):
     
     # Imposta il fuso orario (es. Europe/Rome per l'Italia)
     timezone = pytz.timezone("Europe/Rome")
-     
-    # Impostiamo il job per inviare il promemoria ogni giorno alle 10:00
-    time_mattina = time(10, 0, tzinfo=timezone)
-    job_queue.run_daily(invia_promemoria_mattina, time_mattina)
 
+    # Impostazione per il promemoria della mattina (10:00)
+    target_time_mattina = timezone.localize(datetime.combine(datetime.now(), time(10, 0)))
+    utc_time_mattina = target_time_mattina.astimezone(pytz.utc).timetz()
+    
+    # Impostiamo il job per inviare il promemoria ogni giorno alle 10:00
+    job_queue.run_daily(invia_promemoria_mattina, utc_time_mattina)
+
+    # Impostazione per l'ultimo promemoria  (14:00)
+    target_time_last = timezone.localize(datetime.combine(datetime.now(), time(14, 0)))
+    utc_time_last = target_time_last.astimezone(pytz.utc).timetz()
+    
     # Impostiamo il job per inviare il promemoria ogni giorno alle 14:00
-    time_last = time(14, 0, tzinfo=timezone)
-    job_queue.run_daily(invia_promemoria_last, time_last)
+    job_queue.run_daily(invia_promemoria_last, utc_time_last)
     
-    
-    # Impostazione per il quiz automatico (00:00)
-    time_quiz = time(0, 0, tzinfo=timezone)
-    job_queue.run_daily(inizia_quiz_automatico, time_quiz)
-    
-    job_queue.run_daily(reset_quiz_completati, time_quiz)
+    target_time = timezone.localize(datetime.combine(datetime.now(), time(0, 0)))
+    # Converti in UTC
+    utc_time = target_time.astimezone(pytz.utc).timetz()
+    # Programma il job per le 00:00 ogni giorno
+    job_queue.run_daily(inizia_quiz_automatico, utc_time)
+    job_queue.run_daily(reset_quiz_completati, utc_time)
 
 def is_authorized(chat_id):
     return chat_id in saved_chat_ids  # oppure usa una lista dedicata, ad es. allowed_chat_ids

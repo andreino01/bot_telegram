@@ -538,13 +538,18 @@ def setup_job_queue(application: Application):
     # Imposta il fuso orario (es. Europe/Rome per l'Italia)
     timezone = pytz.timezone("Europe/Rome")
     
-    # Impostazione per il promemoria della mattina (10:00 AM)
+    # Impostazione per il promemoria della mattina (10:00)
     target_time_mattina = timezone.localize(datetime.combine(datetime.now(), time(10, 0)))
     utc_time_mattina = target_time_mattina.astimezone(pytz.utc).timetz()
     
     # Impostiamo il job per inviare il promemoria ogni giorno alle 10:00
     job_queue.run_daily(invia_promemoria_mattina, utc_time_mattina)
-    job_queue.run_daily(reset_quiz_completati, utc_time_mattina)
+    
+    # Impostazione per il reset del pomeriggio (18:00)
+    target_time_reset = timezone.localize(datetime.combine(datetime.now(), time(18, 0)))
+    utc_time_reset = target_time_reset.astimezone(pytz.utc).timetz()
+    
+    job_queue.run_daily(reset_quiz_completati, utc_time_reset)
     
     target_time = timezone.localize(datetime.combine(datetime.now(), time(0, 0)))
     # Converti in UTC

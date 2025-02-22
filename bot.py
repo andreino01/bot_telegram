@@ -544,13 +544,13 @@ def setup_job_queue(application: Application):
     
     # Impostiamo il job per inviare il promemoria ogni giorno alle 10:00
     job_queue.run_daily(invia_promemoria_mattina, utc_time_mattina)
+    job_queue.run_daily(reset_quiz_completati, utc_time_mattina)
     
     target_time = timezone.localize(datetime.combine(datetime.now(), time(0, 0)))
     # Converti in UTC
     utc_time = target_time.astimezone(pytz.utc).timetz()
     # Programma il job per le 00:00 ogni giorno
     job_queue.run_daily(inizia_quiz_automatico, utc_time)
-    job_queue.run_daily(reset_quiz_completati, utc_time)
 
 def is_authorized(chat_id):
     return chat_id in saved_chat_ids  # oppure usa una lista dedicata, ad es. allowed_chat_ids

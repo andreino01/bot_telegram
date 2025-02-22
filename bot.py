@@ -1,20 +1,14 @@
 from telegram import Update, Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
 from oauth2client.service_account import ServiceAccountCredentials
-from googleapiclient.discovery import build
 from datetime import datetime, time, timedelta
 import pytz
 import os
 import gspread
 import asyncio
-from contextlib import asynccontextmanager
-from http import HTTPStatus
-import threading
 
-# Telegram bot token
-TOKEN = os.environ.get('TOKEN')
-
-application = Application.builder().token(TOKEN).build()
+TOKEN = os.getenv('TOKEN')
+bot = Bot(token=TOKEN)
 
 # Google Sheets setup
 GOOGLE_CREDS = {
@@ -34,8 +28,7 @@ GOOGLE_CREDS = {
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_dict(GOOGLE_CREDS, scope)
 gc = gspread.authorize(creds)
-SPREADSHEET_ID = os.environ.get('SHEET_ID')
-sh = gc.open_by_key(SPREADSHEET_ID)
+sh = gc.open_by_key(os.environ.get('SHEET_ID'))
 
 # Lista degli utenti registrati
 saved_chat_ids2 = [637735039]
@@ -43,7 +36,7 @@ saved_chat_ids = [1832764914, 5201631829, 700212414]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
-    #637735039: 1,
+    #637735039: 3,
     1832764914: 1,  # Foglio 2
     5201631829: 2,  # Foglio 3
     700212414: 3    # Foglio 4
@@ -87,10 +80,10 @@ async def send_question(context: ContextTypes.DEFAULT_TYPE, chat_id, question_nu
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
-    if not is_authorized(chat_id):
-         await update.message.reply_text("⛔ Non sei autorizzato ad usare questo bot!")
-         return
-    # Se l'utente è autorizzato:
+    # if not is_authorized(chat_id):
+    #      await update.message.reply_text("⛔ Non sei autorizzato ad usare questo bot!")
+    #      return
+    # # Se l'utente è autorizzato:
     await update.message.reply_text("Sei già registrato! Usa il comando /quiz per iniziare il quiz.")
     
 async def quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -98,9 +91,9 @@ async def quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
     Permette di testare manualmente il quiz inviando le domande una alla volta.
     """
     chat_id = update.message.chat_id
-    if not is_authorized(chat_id):
-         await update.message.reply_text("⛔ Non sei autorizzato ad usare questo bot!")
-         return
+    # if not is_authorized(chat_id):
+    #      await update.message.reply_text("⛔ Non sei autorizzato ad usare questo bot!")
+    #      return
     user_states[chat_id] = 0
     await send_question(context, chat_id, 0)
 
@@ -109,9 +102,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     Gestisce le risposte alle domande.
     """
     chat_id = update.message.chat_id
-    if not is_authorized(chat_id):
-         await update.message.reply_text("⛔ Non sei autorizzato ad usare questo bot!")
-         return
+    # if not is_authorized(chat_id):
+    #      await update.message.reply_text("⛔ Non sei autorizzato ad usare questo bot!")
+    #      return
     text = update.message.text.strip()
     
     if chat_id not in user_states:
@@ -142,10 +135,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("🎉 Quiz completato! Risposte salvate.")
         
+        obiettivi = get_obiettivi(chat_id, tipo="settimanale")
+        calcolo_weekgoal(chat_id)
         oggi = datetime.now() - timedelta(hours=18)
         if oggi.weekday() == 6:
-            obiettivi = get_obiettivi(chat_id, tipo="settimanale")
-            calcolo_weekgoal(chat_id)
             if obiettivi is None:
                 await update.message.reply_text("⚠️ Errore nel recuperare gli obiettivi.")
                 obj = f"⚠️ C'è stato un errore con gli obiettivi settimanali! Contattare il grande capo"
@@ -214,14 +207,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text("⚠️ Impossibile verificare i dati di oggi")    
 
-        buttons = [
-            ("📈 Mostra il grafico", "/grafico"),
-            ("💸 Soldi spesi in totale", "/soldi_spesi"),
-            ("📊 Medie", "/medie"),
-            ("🎯 Obiettivi", "/obiettivi"),
-            ("🗓️ Questa settimana", "/settimana_corrente")]
-        
-        reply_markup = create_keyboard(buttons)
+        # Crea il bottone per visualizzare il grafico
+        keyboard = [
+            [InlineKeyboardButton("📈 Mostra il grafico", callback_data='/grafico')],
+            [InlineKeyboardButton("💸 Soldi spesi in totale", callback_data='/soldi_spesi')],
+            [InlineKeyboardButton("📊 Medie", callback_data='/medie')],
+            [InlineKeyboardButton("🎯 Obiettivi", callback_data='/obiettivi')],
+            [InlineKeyboardButton("🗓️ Questa settimana", callback_data='/settimana_corrente')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
         
         # Invia il bottone per visualizzare il grafico, i soldi spesi, le medie o gli obiettivi
         await update.message.reply_text(
@@ -235,9 +229,9 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
     await query.answer()  # Rispondi al clic del pulsante
     chat_id = query.message.chat.id
 
-    if not is_authorized(chat_id):
-         await context.bot.send_message(chat_id=chat_id, text="⛔ Non sei autorizzato ad usare questo bot!")
-         return
+    # if not is_authorized(chat_id):
+    #      await context.bot.send_message(chat_id=chat_id, text="⛔ Non sei autorizzato ad usare questo bot!")
+    #      return
         
     if query.data == '/quiz':  # Se è il pulsante per iniziare il quiz
         user_states[chat_id] = 0
@@ -266,10 +260,11 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
         else:
             await context.bot.send_message(chat_id=chat_id, text="⚠️ Non ho trovato le tue medie.")
     elif query.data == '/obiettivi':  # Aggiunto nuovo tasto per gli obiettivi
-        buttons = [
-            ("🎯 Giornaliero", "/obiettivi_gior"),
-            ("🎯 Settimanale", "/obiettivi_sett")]
-        reply_markup = create_keyboard(buttons)
+        keyboard = [
+            [InlineKeyboardButton("🎯 Giornaliero", callback_data='/obiettivi_gior')],
+            [InlineKeyboardButton("🎯 Settimanale", callback_data='/obiettivi_sett')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
         await context.bot.send_message(chat_id=chat_id, text="Quali obiettivi vuoi vedere?", reply_markup=reply_markup)
 
     elif query.data == '/obiettivi_gior':
@@ -327,8 +322,10 @@ async def inizia_quiz_automatico(context: ContextTypes.DEFAULT_TYPE):
             continue  # Salta l'utente se ha già completato il quiz
         try:
             # Crea un bottone inline per il comando /quiz
-            button = [("📝 Inizia il quiz", "/quiz")]
-            reply_markup = create_keyboard(button)
+            keyboard = [
+                [InlineKeyboardButton("Inizia il quiz", callback_data='/quiz')]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
             # Invia il messaggio con il pulsante inline
             await context.bot.send_message(
                 chat_id=chat_id,
@@ -346,8 +343,10 @@ async def invia_promemoria_mattina(context: ContextTypes.DEFAULT_TYPE):
         if users_mancanti[chat_id] and (chat_id not in quiz_completati or not quiz_completati[chat_id]):
             try:
                 # Crea un bottone inline per il comando /quiz
-                button = [("📝 Inizia il quiz", "/quiz")]
-                reply_markup = create_keyboard(button)
+                keyboard = [
+                    [InlineKeyboardButton("Inizia il quiz", callback_data='/quiz')]
+                ]
+                reply_markup = InlineKeyboardMarkup(keyboard)
                 # Invia il messaggio con il pulsante inline
                 await context.bot.send_message(
                     chat_id=chat_id,
@@ -357,25 +356,6 @@ async def invia_promemoria_mattina(context: ContextTypes.DEFAULT_TYPE):
             except Exception as e:
                 print(f"Errore nell'inviare il messaggio al chat_id {chat_id}: {e}")
 
-async def invia_promemoria_last(context: ContextTypes.DEFAULT_TYPE):
-    #Funzione per inviare il promemoria la mattina agli utenti che non hanno completato il quiz.
-    
-    for chat_id in list(users_mancanti.keys()):
-        if users_mancanti[chat_id] and (chat_id not in quiz_completati or not quiz_completati[chat_id]):
-            try:
-                # Crea un bottone inline per il comando /quiz
-                button = [("📝 Inizia il quiz", "/quiz")]
-                reply_markup = create_keyboard(button)
-                # Invia il messaggio con il pulsante inline
-                await context.bot.send_message(
-                    chat_id=chat_id,
-                    text="🥺 Hey...\nNon hai ancora compilato il quiz, vuoi farlo ora?",
-                    reply_markup=reply_markup
-                )
-            except Exception as e:
-                print(f"Errore nell'inviare il messaggio al chat_id {chat_id}: {e}")
-
-
 async def reset_quiz_completati(context: ContextTypes.DEFAULT_TYPE):
     """
     Resetta il dizionario dei quiz completati ogni giorno a mezzanotte.
@@ -383,11 +363,6 @@ async def reset_quiz_completati(context: ContextTypes.DEFAULT_TYPE):
     global quiz_completati
     quiz_completati = {}
 
-def create_keyboard(buttons):
-    #Crea una tastiera inline con i pulsanti specificati.
-    keyboard = [[InlineKeyboardButton(text, callback_data=data)] for text, data in buttons]
-    return InlineKeyboardMarkup(keyboard)
-    
 def get_grafico_url(chat_id, tipo):
     grafici = {
         1832764914: {
@@ -452,44 +427,6 @@ def get_medie(chat_id, tipo):
 
     # Ottieni il foglio corrispondente
     worksheet = sh.get_worksheet(sheet_map[chat_id])
-    
-    # Definisci i range di celle da leggere in base al tipo
-    if tipo == "giornaliero":
-        ranges = ['Z3', 'Z6', 'Z9']  # Celle per medie giornaliere
-    elif tipo == "settimanale":
-        ranges = ['Z23', 'Z26', 'Z29']  # Celle per medie settimanali
-    else:
-        return None
-
-    # Costruisci i range completi con il nome del foglio
-    sheet_name = worksheet.title
-    full_ranges = [f"{sheet_name}!{r}" for r in ranges]
-
-    # Esegui la chiamata batchGet per recuperare i dati
-    service = build('sheets', 'v4', credentials=creds)
-    result = service.spreadsheets().values().batchGet(
-        spreadsheetId=SPREADSHEET_ID,
-        ranges=full_ranges
-    ).execute()
-
-    # Estrai i valori dai risultati
-    value_ranges = result.get('valueRanges', [])
-    if len(value_ranges) != len(ranges):
-        print(f"Errore nel recuperare i dati per {chat_id}: numero di range non corrispondente")
-        return None
-
-    try:
-        # Converti i valori in interi e crea una lista
-        medie = [
-            (value_ranges[0]['values'][0][0]),  # media_1
-            (value_ranges[1]['values'][0][0]),  # media_2
-            (value_ranges[2]['values'][0][0])  # media_3
-        ]
-        return medie
-    except Exception as e:
-        print(f"Errore nel convertire i valori per {chat_id}: {e}")
-        return None
-    '''
     if tipo == "giornaliero":
         try:
             # Recupera i valori delle tre medie dalle celle Z2, Z3, Z4 (colonna 26)
@@ -513,7 +450,7 @@ def get_medie(chat_id, tipo):
         except Exception as e:
             print(f"Errore nel recuperare le medie settimanali per {chat_id}: {e}")
             return None
-    '''     
+        
 def get_obiettivi(chat_id,tipo):
     
     if chat_id not in sheet_map:
@@ -521,45 +458,6 @@ def get_obiettivi(chat_id,tipo):
 
     # Ottieni il foglio corrispondente
     worksheet = sh.get_worksheet(sheet_map[chat_id])
-    
-    # Definisci i range di celle da leggere in base al tipo
-    if tipo == "giornaliero":
-        ranges = ['Z13', 'Z16', 'Z19', 'X12']  # Celle per obiettivi giornalieri
-    elif tipo == "settimanale":
-        ranges = ['X16', 'X19', 'X22', 'X25']  # Celle per obiettivi settimanali
-    else:
-        return None
-
-    # Costruisci i range completi con il nome del foglio
-    sheet_name = worksheet.title
-    full_ranges = [f"{sheet_name}!{r}" for r in ranges]
-
-    # Esegui la chiamata batchGet per recuperare i dati
-    service = build('sheets', 'v4', credentials=creds)
-    result = service.spreadsheets().values().batchGet(
-        spreadsheetId=SPREADSHEET_ID,
-        ranges=full_ranges
-    ).execute()
-
-    # Estrai i valori dai risultati
-    value_ranges = result.get('valueRanges', [])
-    if len(value_ranges) != len(ranges):
-        print(f"Errore nel recuperare i dati per {chat_id}: numero di range non corrispondente")
-        return None
-
-    try:
-        # Converti i valori in interi e crea una lista
-        obiettivi = [
-            int(value_ranges[0]['values'][0][0]),  # obiettivo_1
-            int(value_ranges[1]['values'][0][0]),  # obiettivo_2
-            int(value_ranges[2]['values'][0][0]),  # obiettivo_3
-            int(value_ranges[3]['values'][0][0])   # goal_reached
-        ]
-        return obiettivi
-    except Exception as e:
-        print(f"Errore nel convertire i valori per {chat_id}: {e}")
-        return None
-    '''
     if tipo == "giornaliero":
         try:
             # Recupera i valori dei tre obiettivi dalle celle Z13, Z16, Z19 (colonna 26)
@@ -588,7 +486,7 @@ def get_obiettivi(chat_id,tipo):
         except Exception as e:
             print(f"Errore nel recuperare gli obiettivi per {chat_id}: {e}")
             return None
-    '''
+
 def calcolo_weekgoal(chat_id):
     if chat_id not in sheet_map:
         return None
@@ -619,38 +517,6 @@ def get_settimana_corrente(chat_id):
     # Ottieni il foglio corrispondente
     worksheet = sh.get_worksheet(sheet_map[chat_id])
 
-    # Definisci i range di celle da leggere in base al tipo
-    ranges = ['X29', 'X32', 'X35']  # Celle per settimana corrente
-
-    # Costruisci i range completi con il nome del foglio
-    sheet_name = worksheet.title
-    full_ranges = [f"{sheet_name}!{r}" for r in ranges]
-
-    # Esegui la chiamata batchGet per recuperare i dati
-    service = build('sheets', 'v4', credentials=creds)
-    result = service.spreadsheets().values().batchGet(
-        spreadsheetId=SPREADSHEET_ID,
-        ranges=full_ranges
-    ).execute()
-
-    # Estrai i valori dai risultati
-    value_ranges = result.get('valueRanges', [])
-    if len(value_ranges) != len(ranges):
-        print(f"Errore nel recuperare i dati per {chat_id}: numero di range non corrispondente")
-        return None
-
-    try:
-        # Converti i valori in interi e crea una lista
-        settimana = [
-            int(value_ranges[0]['values'][0][0]),  # settimana_1
-            int(value_ranges[1]['values'][0][0]),  # settimana_2
-            int(value_ranges[2]['values'][0][0]),  # settimana_3
-        ]
-        return settimana
-    except Exception as e:
-        print(f"Errore nel convertire i valori per {chat_id}: {e}")
-        return None
-    '''
     try:
         # Recupera i valori dei tre obiettivi dalle celle X29, X32, X35 (colonna 24)
         obiettivo_1 = int(worksheet.cell(29, 24).value)  # X29
@@ -662,7 +528,7 @@ def get_settimana_corrente(chat_id):
     except Exception as e:
         print(f"Errore nel recuperare i dati di questa settimana per {chat_id}: {e}")
         return None
-    '''
+
 def setup_job_queue(application: Application):
     """
     Configura il job schedulato per mezzanotte
@@ -671,20 +537,13 @@ def setup_job_queue(application: Application):
     
     # Imposta il fuso orario (es. Europe/Rome per l'Italia)
     timezone = pytz.timezone("Europe/Rome")
-
-    # Impostazione per il promemoria della mattina (10:00)
+    
+    # Impostazione per il promemoria della mattina (10:00 AM)
     target_time_mattina = timezone.localize(datetime.combine(datetime.now(), time(10, 0)))
     utc_time_mattina = target_time_mattina.astimezone(pytz.utc).timetz()
     
     # Impostiamo il job per inviare il promemoria ogni giorno alle 10:00
     job_queue.run_daily(invia_promemoria_mattina, utc_time_mattina)
-
-    # Impostazione per l'ultimo promemoria  (14:00)
-    target_time_last = timezone.localize(datetime.combine(datetime.now(), time(14, 0)))
-    utc_time_last = target_time_last.astimezone(pytz.utc).timetz()
-    
-    # Impostiamo il job per inviare il promemoria ogni giorno alle 14:00
-    job_queue.run_daily(invia_promemoria_last, utc_time_last)
     
     target_time = timezone.localize(datetime.combine(datetime.now(), time(0, 0)))
     # Converti in UTC
@@ -696,12 +555,17 @@ def setup_job_queue(application: Application):
 def is_authorized(chat_id):
     return chat_id in saved_chat_ids  # oppure usa una lista dedicata, ad es. allowed_chat_ids
 
-application.add_handler(CommandHandler("start", start))
-application.add_handler(CommandHandler("quiz", quiz))
-application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-application.add_handler(CallbackQueryHandler(handle_button_click))
 
-if __name__ == "__main__":
-    print("Bot avviato in modalità polling...")
-    setup_job_queue(application)
-    application.run_polling()
+if __name__ == '__main__':
+    app = Application.builder().token(TOKEN).concurrent_updates(4).build()
+    # Handlers
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("quiz", quiz))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.add_handler(CallbackQueryHandler(handle_button_click))
+		
+  
+    # Configura il job schedulato
+    setup_job_queue(app)
+    # Avvia il bot in long polling
+    app.run_polling()

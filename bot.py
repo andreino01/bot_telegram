@@ -36,11 +36,11 @@ saved_chat_ids = [1832764914, 5201631829, 700212414, 138254869]
 
 # Mappa degli ID e i fogli corrispondenti
 sheet_map = {
-    637735039: 4,
+    #637735039: 4,
     1832764914: 1,  # Foglio 2
     5201631829: 2,  # Foglio 3
     700212414: 3,   # Foglio 4
-    #138254869: 4    # Foglio 5
+    138254869: 4    # Foglio 5
 }
 
 # Domande del quiz
@@ -378,7 +378,7 @@ def get_grafico_url(chat_id, tipo):
             "giornaliero": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=937722899&format=image",
             "settimanale": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=1136748667&format=image"
         },
-        637735039: {
+        138254869: {
             "giornaliero": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=649143491&format=image",
             "settimanale": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnK4kFwfA4EONo5mKHz32uk2QS0OHzgW6suVPz2EwgHnaWilA9z07NRJ_gmjZD83ri89NpaZtDIIv/pubchart?oid=830063304&format=image"
         }
